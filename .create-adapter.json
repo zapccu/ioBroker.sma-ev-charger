@@ -1,0 +1,51 @@
+{
+	"expert": "yes",
+	"cli": false,
+	"adapterName": "sma-ev-charger",
+	"title": "SMA EV Charger",
+	"description": "Adapter for SMA EV Charger wallbox",
+	"keywords": ["wallbox"],
+	"features": ["adapter"],
+	"adminFeatures": ["custom"],
+	"type": "energy",
+	"startMode": "daemon",
+	"connectionType": "local",
+	"dataSource": "poll",
+	"connectionIndicator": "yes",
+	"authorName": "zapccu",
+	"authorGithub": "zapccu",
+	"authorEmail": "d.braner@gmx.net",
+	"adapterSettings": [
+		{
+			"key": "host",
+			"label": "Charger hostname or IP",
+			"inputType": "text",
+			"defaultValue": ""
+		},
+		{
+			"key": "username",
+			"label": "User",
+			"inputType": "text",
+			"defaultValue": "admin"
+		},
+		{
+			"key": "password",
+			"label": "Password",
+			"inputType": "text",
+			"defaultValue": ""
+		}
+	],
+	"language": "JavaScript",
+	"nodeVersion": "14",
+	"adminUi": "json",
+	"releaseScript": "yes",
+	"indentation": "Tab",
+	"quotes": "double",
+	"es6class": "yes",
+	"tools": ["ESLint", "type checking", "Prettier"],
+	"gitRemoteProtocol": "HTTPS",
+	"license": "MIT License",
+	"dependabot": "yes",
+	"target": "github",
+	"creatorVersion": "2.3.0"
+}

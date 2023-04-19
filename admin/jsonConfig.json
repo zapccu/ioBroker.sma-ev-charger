@@ -1,0 +1,21 @@
+{
+	"i18n": true,
+	"type": "panel",
+	"items": {
+		"host": {
+			"type": "text",
+			"label": "Charger hostname or IP",
+			"newLine": true
+		},
+		"username": {
+			"type": "text",
+			"label": "User",
+			"newLine": true
+		},
+		"password": {
+			"type": "text",
+			"label": "Password",
+			"newLine": true
+		}
+	}
+}
