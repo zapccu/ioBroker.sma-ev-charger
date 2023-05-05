@@ -156,7 +156,7 @@ class SmaEvCharger extends utils.Adapter {
          password: this.config.password
       };
         
-      const data = await this.requestClient({
+      await this.requestClient({
          url: smaUrl,
          method: "POST",
          headers: {
