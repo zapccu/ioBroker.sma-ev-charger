@@ -25,6 +25,8 @@ class SmaEvCharger extends utils.Adapter {
 		// this.on("objectChange", this.onObjectChange.bind(this));
 		// this.on("message", this.onMessage.bind(this));
 		this.on("unload", this.onUnload.bind(this));
+
+      this.session = {};
 	}
 
 	/**
@@ -47,10 +49,10 @@ class SmaEvCharger extends utils.Adapter {
 		Here a simple template for a boolean variable named "testVariable"
 		Because every adapter instance uses its own unique namespace variable names can't collide with other adapters variables
 		*/
-		await this.setObjectNotExistsAsync("testVariable", {
+		await this.setObjectNotExistsAsync("connectionState", {
 			type: "state",
 			common: {
-				name: "testVariable",
+				name: "connectionState",
 				type: "boolean",
 				role: "indicator",
 				read: true,
@@ -60,7 +62,7 @@ class SmaEvCharger extends utils.Adapter {
 		});
 
 		// In order to get state updates, you need to subscribe to them. The following line adds a subscription for our variable we have created above.
-		this.subscribeStates("testVariable");
+		this.subscribeStates("connectionState");
 		// You can also add a subscription for multiple states. The following line watches all states starting with "lights."
 		// this.subscribeStates("lights.*");
 		// Or, if you really must, you can also watch all states. Don't do this if you don't need to. Otherwise this will cause a lot of unnecessary load on the system:
@@ -71,22 +73,106 @@ class SmaEvCharger extends utils.Adapter {
 			you will notice that each setState will cause the stateChange event to fire (because of above subscribeStates cmd)
 		*/
 		// the variable testVariable is set to true as command (ack=false)
-		await this.setStateAsync("testVariable", true);
+		await this.setStateAsync("connectionState", true);
 
 		// same thing, but the value is flagged "ack"
 		// ack should be always set to true if the value is received from or acknowledged from the target system
-		await this.setStateAsync("testVariable", { val: true, ack: true });
+		await this.setStateAsync("connectionState", { val: true, ack: true });
 
 		// same thing, but the state is deleted after 30s (getState will return null afterwards)
-		await this.setStateAsync("testVariable", { val: true, ack: true, expire: 30 });
+		await this.setStateAsync("connectionState", { val: true, ack: true, expire: 30 });
 
 		// examples for the checkPassword/checkGroup functions
-		let result = await this.checkPasswordAsync("admin", "iobroker");
-		this.log.info("check user admin pw iobroker: " + result);
+		// let result = await this.checkPasswordAsync("admin", "iobroker");
+		// this.log.info("check user admin pw iobroker: " + result);
 
-		result = await this.checkGroupAsync("admin", "admin");
-		this.log.info("check group user admin group admin: " + result);
-	}
+		// result = await this.checkGroupAsync("admin", "admin");
+		// this.log.info("check group user admin group admin: " + result);
+
+      this.adapterConfig = "system.adapter." + this.name + "." + this.instance;
+      const obj = await this.getForeignObjectAsync(this.adapterConfig);
+      if (this.config.reset) {
+         if (obj) {
+            obj.native.session = {};
+            await this.setForeignObjectAsync(this.adapterConfig, obj);
+            this.log.info("Login Token resetted");
+            this.terminate();
+         }
+      }
+
+      this.requestClient = axios.create();
+
+      if (obj && obj.native.session && obj.native.session.refresh_token) {
+         this.session = obj.native.session;
+         this.log.info("Session loaded");
+         this.log.info("Refresh session");
+         await this.refreshToken(true);
+      }
+
+      this.updateInterval = 60;
+      this.reLoginTimeout = null;
+      this.refreshTokenTimeout = null;
+
+      this.subscribeStates("*");
+
+      if (!this.session.access_token) {
+         this.log.info("Initial login");
+         await this.login();
+      }
+
+      // Update wallbox data
+      if (this.session.access_token) {
+         this.updateInterval = setInterval(async () => {
+            await this.updateDevices();
+      }, this.updateInterval * 1000);
+
+      // Refresh access token
+      this.refreshTokenInterval = setInterval(() => {
+         this.refreshToken();
+      }, this.session.expires_in * 1000);
+   }
+
+   async login() {
+      const data = {
+        grant_type: "authorization_code",
+        code: code,
+        client_id: "ownerapi",
+        redirect_uri: "https://auth.tesla.com/void/callback",
+        scope: "openid email offline_access",
+        code_verifier: code_verifier,
+      };
+
+      this.log.debug(JSON.stringify(data));
+      await this.requestClient({
+        method: "post",
+        url: "https://auth.tesla.com/oauth2/v3/token",
+        headers: this.headers,
+        data: qs.stringify(data),
+      })
+        .then(async (res) => {
+          this.log.debug(JSON.stringify(res.data));
+          this.session = res.data;
+  
+          this.log.info("Login successful");
+          this.setState("info.connection", true, true);
+          return res.data;
+        })
+        .catch(async (error) => {
+          this.setState("info.connection", false, true);
+          this.log.error(error);
+          if (error.response) {
+            this.log.error(JSON.stringify(error.response.data));
+          }
+          if (error.response && error.response.status === 403) {
+            this.log.error("Please relogin in the settings and copy a new codeURL");
+            const obj = await this.getForeignObjectAsync(this.adapterConfig);
+            if (obj) {
+              obj.native.codeUrl = "";
+              this.setForeignObject(this.adapterConfig, obj);
+            }
+          }
+        });
+   }
 
 	/**
 	 * Is called when adapter shuts down - callback has to be called under any circumstances!
