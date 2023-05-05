@@ -9,6 +9,7 @@
 // you need to create an adapter
 const utils = require("@iobroker/adapter-core");
 const axios = require("axios");
+const FormData = require('form-data');
 
 // Load your modules here, e.g.:
 // const fs = require("fs");
