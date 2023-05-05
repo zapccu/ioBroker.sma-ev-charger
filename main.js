@@ -126,10 +126,10 @@ class SmaEvCharger extends utils.Adapter {
       }
 
       // Update wallbox data
-//      if (this.session.access_token) {
-//         this.updateInterval = setInterval(async () => {
-//            await this.updateDevices();
-//      }, this.updateInterval * 1000);
+      if (this.session.access_token) {
+         this.updateInterval = setInterval(async () => {
+            await this.updateCharger();
+      }, this.updateInterval * 1000);
 
       // Refresh access token
 //      this.refreshTokenInterval = setInterval(() => {
@@ -151,10 +151,10 @@ class SmaEvCharger extends utils.Adapter {
          password: this.config.password
       };
       
-      this.requestClient.interceptors.request.use(request => {
-         this.log.info(JSON.stringify(request, null, 2))
-         return request
-      });
+//      this.requestClient.interceptors.request.use(request => {
+//         this.log.info(JSON.stringify(request, null, 2))
+//         return request
+//      });
 
       await this.requestClient({
          url: smaUrl,
@@ -165,10 +165,36 @@ class SmaEvCharger extends utils.Adapter {
          data: qs.stringify(data)
       })
          .then((response) => {
-             this.log.debug(JSON.stringify(response.data));
+             this.log.info(JSON.stringify(response.data));
              this.session = response.data;
              this.setState("info.connection", true, true);
              this.log.info(`Connected to ${this.config.host} `);
+         })
+         .catch((error) => {
+             this.log.error(error);
+             error.response && this.log.error(JSON.stringify(error.response.data));
+         });
+   }
+
+   async updateCharger() {
+      const smaUrl = "https://" + this.config.host + "/api/v1/measurements/live";
+      this.log.info("URL = "+smaUrl);
+
+      const body = [ {"componentId": "IGULD:SELF"} ];
+   
+      await this.requestClient({
+         url: smaUrl,
+         method: "POST",
+         headers: {
+            "Authorization": "Bearer " + this.session.access_token, 
+            "Accept": "*/*",
+            "Content-Type": "application/json"
+         },
+         data: JSON.stringify(body)
+      })
+         .then((response) => {
+             this.log.info(JSON.stringify(response.data));
+             this.setState("info.connection", true, true);
          })
          .catch((error) => {
              this.log.error(error);
