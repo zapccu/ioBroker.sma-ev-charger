@@ -166,7 +166,7 @@ class SmaEvCharger extends utils.Adapter {
          password: this.config.password
       },{
          headers:  {
-            'Content-Type': 'multipart/form-data'
+            'Content-Type': 'application/x-www-form-urlencoded'
          }
       })
          .then((response) => {
