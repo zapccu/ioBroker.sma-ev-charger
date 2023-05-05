@@ -1,3 +1,4 @@
+// @ts-nocheck
 "use strict";
 
 /*
@@ -121,57 +122,46 @@ class SmaEvCharger extends utils.Adapter {
       }
 
       // Update wallbox data
-      if (this.session.access_token) {
-         this.updateInterval = setInterval(async () => {
-            await this.updateDevices();
-      }, this.updateInterval * 1000);
+//      if (this.session.access_token) {
+//         this.updateInterval = setInterval(async () => {
+//            await this.updateDevices();
+//      }, this.updateInterval * 1000);
 
       // Refresh access token
-      this.refreshTokenInterval = setInterval(() => {
-         this.refreshToken();
-      }, this.session.expires_in * 1000);
+//      this.refreshTokenInterval = setInterval(() => {
+//         this.refreshToken();
+//      }, this.session.expires_in * 1000);
    }
 
    async login() {
-      const data = {
-        grant_type: "authorization_code",
-        code: code,
-        client_id: "ownerapi",
-        redirect_uri: "https://auth.tesla.com/void/callback",
-        scope: "openid email offline_access",
-        code_verifier: code_verifier,
-      };
+      this.log.info("hostname = " + this.config.host);
+      this.log.info("username = " + this.config.username);
+      this.log.info("password = " + this.config.password);
 
-      this.log.debug(JSON.stringify(data));
-      await this.requestClient({
-        method: "post",
-        url: "https://auth.tesla.com/oauth2/v3/token",
-        headers: this.headers,
-        data: qs.stringify(data),
+      var formData = new FormData();
+      formData.append('grant_type', 'password');
+      formData.append('username', this.config.username);
+      formData.append('password', this.config.password);
+
+      const data = await this.requestClient({
+         url: "https://" + this.config.host + "/api/v1/token",
+         method: "post",
+         headers: {
+             accept: "application/json",
+             "content-type": "multipart/form-data"
+         },
+         data: formData
       })
-        .then(async (res) => {
-          this.log.debug(JSON.stringify(res.data));
-          this.session = res.data;
-  
-          this.log.info("Login successful");
-          this.setState("info.connection", true, true);
-          return res.data;
-        })
-        .catch(async (error) => {
-          this.setState("info.connection", false, true);
-          this.log.error(error);
-          if (error.response) {
-            this.log.error(JSON.stringify(error.response.data));
-          }
-          if (error.response && error.response.status === 403) {
-            this.log.error("Please relogin in the settings and copy a new codeURL");
-            const obj = await this.getForeignObjectAsync(this.adapterConfig);
-            if (obj) {
-              obj.native.codeUrl = "";
-              this.setForeignObject(this.adapterConfig, obj);
-            }
-          }
-        });
+         .then((response) => {
+             this.log.debug(JSON.stringify(response.data));
+             this.session = response.data;
+             this.setState("info.connection", true, true);
+             this.log.info(`Connected to ${this.config.host} `);
+         })
+         .catch((error) => {
+             this.log.error(error);
+             error.response && this.log.error(JSON.stringify(error.response.data));
+         });
    }
 
 	/**
