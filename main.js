@@ -142,20 +142,20 @@ class SmaEvCharger extends utils.Adapter {
       this.log.info("username = " + this.config.username);
       this.log.info("password = " + this.config.password);
 
-//      var formData = new FormData();
-//      formData.append('grant_type', 'password');
-//      formData.append('username', this.config.username);
-//      formData.append('password', this.config.password);
-
       const smaUrl = "https://" + this.config.host + "/api/v1/token";
       this.log.info("URL = "+smaUrl);
 
       const data = {
          grant_type: "password",
-         username: this.config.username,
-         password: this.config.password
+         username: "dirk",
+         password: "PV#MMeyran7"
       };
-        
+      
+      this.requestClient.interceptors.request.use(request => {
+         this.log.debug('Starting Request', JSON.stringify(request, null, 2))
+         return request
+      });
+
       await this.requestClient({
          url: smaUrl,
          method: "POST",
