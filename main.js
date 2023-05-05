@@ -129,7 +129,8 @@ class SmaEvCharger extends utils.Adapter {
       if (this.session.access_token) {
          this.updateInterval = setInterval(async () => {
             await this.updateCharger();
-      }, this.updateInterval * 1000);
+         }, this.updateInterval * 1000);
+      }
 
       // Refresh access token
 //      this.refreshTokenInterval = setInterval(() => {
