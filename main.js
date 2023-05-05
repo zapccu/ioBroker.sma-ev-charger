@@ -147,12 +147,12 @@ class SmaEvCharger extends utils.Adapter {
 
       const data = {
          grant_type: "password",
-         username: "dirk",
-         password: "PV#MMeyran7"
+         username: this.config.username,
+         password: this.config.password
       };
       
       this.requestClient.interceptors.request.use(request => {
-         this.log.debug('Starting Request', JSON.stringify(request, null, 2))
+         this.log.info(JSON.stringify(request, null, 2))
          return request
       });
 
