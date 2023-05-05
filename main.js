@@ -149,6 +149,17 @@ class SmaEvCharger extends utils.Adapter {
       const smaUrl = "https://" + this.config.host + "/api/v1/token";
       this.log.info("URL = "+smaUrl);
 
+        
+//      const data = await this.requestClient({
+//         url: smaUrl,
+//         method: "POST",
+//         headers: {
+//             accept: "*/*"
+//         },
+//         data: formData
+//      })
+
+
       const data = await this.requestClient.post(smaUrl, {
          grant_type: 'password',
          username: this.config.username,
@@ -158,16 +169,6 @@ class SmaEvCharger extends utils.Adapter {
             'Content-Type': 'multipart/form-data'
          }
       })
-/*      
-      const data = await this.requestClient({
-         url: smaUrl,
-         method: "POST",
-         headers: {
-             accept: "*/*"
-         },
-         data: formData
-      })
-*/
          .then((response) => {
              this.log.debug(JSON.stringify(response.data));
              this.session = response.data;
