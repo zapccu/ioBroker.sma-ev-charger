@@ -13,9 +13,25 @@
 			"newLine": true
 		},
 		"password": {
-			"type": "text",
+			"type": "password",
 			"label": "Password",
 			"newLine": true
-		}
+		},
+      "infoInterval": {
+         "type": "number",
+         "min": 0,
+         "max": 3600,
+         "default": 30,
+         "label": "Info update interval",
+         "newLine": true
+      },
+      "paramInterval": {
+         "type": "number",
+         "min": 0,
+         "max": 3600,
+         "default": 120,
+         "label": "Parameter update interval",
+         "newLine": true
+      }
 	}
 }

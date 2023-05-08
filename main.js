@@ -11,10 +11,6 @@ process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 const utils = require("@iobroker/adapter-core");
 const axios = require("axios");
 const qs = require("qs");
-// const FormData = require('form-data');
-
-// Load your modules here, e.g.:
-// const fs = require("fs");
 
 class SmaEvCharger extends utils.Adapter {
 	/**
@@ -48,6 +44,8 @@ class SmaEvCharger extends utils.Adapter {
 		this.log.info("config host: " + this.config.host);
 		this.log.info("config username: " + this.config.username);
 		this.log.info("config password: " + this.config.password);
+		this.log.info("info interval: " + this.config.infoInterval);
+		this.log.info("param interval: " + this.config.paramInterval);
 
 		/*
 		For every state in the system there has to be also an object of type state
@@ -114,37 +112,56 @@ class SmaEvCharger extends utils.Adapter {
          await this.refreshToken(true);
       }
 
-      this.updateInterval = 60;
+      // Todo: Is this needed?
       this.reLoginTimeout = null;
       this.refreshTokenTimeout = null;
 
       this.subscribeStates("*");
 
+      // Initial login
       if (!this.session.access_token) {
          this.log.info("Initial login");
          await this.login();
       }
 
-      // Update wallbox data
       if (this.session.access_token) {
-         this.updateInterval = setInterval(async () => {
-            await this.updateCharger();
-         }, this.updateInterval * 1000);
+         // Login successful, setup timer functions
+
+         const refreshInterval = this.session.expires_in ? this.session.expires_in : 3600;
+         this.log.info("Token refresh interval = " + refreshInterval + " seconds");
+
+         // Timer for refreshing the access token
+         this.refreshTokenInterval = setInterval(() => {
+            await this.refreshToken();
+         }, refreshInterval * 1000);
+
+         // Timer for updating the wallbox information
+         if (this.config.infoInterval > 0) {
+            this.updateInfoInterval = setInterval(async () => {
+               await this.updateChargerInformation();
+            }, this.config.infoInterval * 1000);
+         }
+
+         // Timer for updating the wallbox configuration
+         if (this.config.paramInterval > 0) {
+            this.updateParamInterval = setInterval(async () => {
+               await this.updateChargerParameters();
+            }, this.config.paramInterval * 1000);
+         }
       }
 
-      // Refresh access token
-//      this.refreshTokenInterval = setInterval(() => {
-//         this.refreshToken();
-//      }, this.session.expires_in * 1000);
    }
 
+   //
+   // Login to wallbox
+   //
    async login() {
       this.log.info("hostname = " + this.config.host);
       this.log.info("username = " + this.config.username);
       this.log.info("password = " + this.config.password);
 
       const smaUrl = "https://" + this.config.host + "/api/v1/token";
-      this.log.info("URL = "+smaUrl);
+      this.log.info("Login URL = "+smaUrl);
 
       const data = {
          grant_type: "password",
@@ -165,21 +182,59 @@ class SmaEvCharger extends utils.Adapter {
          },
          data: qs.stringify(data)
       })
-         .then((response) => {
-             this.log.info(JSON.stringify(response.data));
-             this.session = response.data;
-             this.setState("info.connection", true, true);
-             this.log.info(`Connected to ${this.config.host} `);
-         })
-         .catch((error) => {
-             this.log.error(error);
-             error.response && this.log.error(JSON.stringify(error.response.data));
-         });
+      .then((response) => {
+            this.log.info(JSON.stringify(response.data));
+            this.session = response.data;
+            this.setState("info.connection", true, true);
+            this.log.info(`Connected to ${this.config.host} `);
+      })
+      .catch((error) => {
+            this.log.error(error);
+            error.response && this.log.error(JSON.stringify(error.response.data));
+      });
    }
 
-   async updateCharger() {
+   //
+   // Refresh the access token
+   //
+   async refreshToken() {
+      this.log.info("Refreshing token");
+
+      const smaUrl = "https://" + this.config.host + "/api/v1/token";
+      this.log.info("Refresh URL = "+smaUrl);
+
+      const data = {
+         grant_type: "refresh_token",
+         refresh_token: this.session.refresh_token
+      };      
+      await this.requestClient({
+         url: smaUrl,
+         method: "POST",
+         headers: {
+             accept: "*/*"
+         },
+         data: qs.stringify(data)
+      })
+      .then((response) => {
+            this.log.info(JSON.stringify(response.data));
+            this.session = response.data;
+            this.setState("info.connection", true, true);
+            this.log.info(`Connected to ${this.config.host} `);
+      })
+      .catch((error) => {
+            this.log.error(error);
+            error.response && this.log.error(JSON.stringify(error.response.data));
+      });
+   }
+
+   //
+   // Refresh the charger information
+   //
+   async updateChargerInformation() {
+      this.log.info("Updating charger information");
+
       const smaUrl = "https://" + this.config.host + "/api/v1/measurements/live";
-      this.log.info("URL = "+smaUrl);
+      this.log.info("Fetch Info URL = "+smaUrl);
 
       const body = [ {"componentId": "IGULD:SELF"} ];
    
@@ -203,12 +258,25 @@ class SmaEvCharger extends utils.Adapter {
          });
    }
 
+   //
+   // Refresh the charger parameters
+   //
+   async updateChargerParameters() {
+      this.log.info("Updating charger parameters");
+
+   }
+
 	/**
 	 * Is called when adapter shuts down - callback has to be called under any circumstances!
 	 * @param {() => void} callback
 	 */
 	onUnload(callback) {
 		try {
+         this.setState("info.connection", false, true);
+         this.updateInfoInterval && this.clearInterval(this.updateInfoInterval);
+         this.updateParamInterval && this.clearInterval(this.updateParamInterval);
+         this.refreshTokenInterval && this.clearInterval(this.refreshTokenInterval);
+
 			// Here you must clear all timeouts or intervals that may still be active
 			// clearTimeout(timeout1);
 			// clearTimeout(timeout2);
