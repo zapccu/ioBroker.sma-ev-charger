@@ -133,7 +133,7 @@ class SmaEvCharger extends utils.Adapter {
          this.log.info("Token refresh interval = " + refreshInterval + " seconds");
 
          // Timer for refreshing the access token
-         this.refreshTokenInterval = setInterval(() => {
+         this.refreshTokenInterval = setInterval(async () => {
             await this.refreshToken();
          }, refreshInterval * 1000);
 
