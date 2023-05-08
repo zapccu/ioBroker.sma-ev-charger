@@ -65,7 +65,7 @@ class SmaEvCharger extends utils.Adapter {
 		});
 
 		// In order to get state updates, you need to subscribe to them. The following line adds a subscription for our variable we have created above.
-		this.subscribeStates("connectionState");
+		// this.subscribeStates("connectionState");
 		// You can also add a subscription for multiple states. The following line watches all states starting with "lights."
 		// this.subscribeStates("lights.*");
 		// Or, if you really must, you can also watch all states. Don't do this if you don't need to. Otherwise this will cause a lot of unnecessary load on the system:
@@ -116,8 +116,10 @@ class SmaEvCharger extends utils.Adapter {
       this.reLoginTimeout = null;
       this.refreshTokenTimeout = null;
 
+      // Subscribe to changes
       this.subscribeStates("*");
-
+      this.subscribeObjects("*");
+      
       // Initial login
       if (!this.session.access_token) {
          this.log.info("Initial login");
@@ -291,20 +293,20 @@ class SmaEvCharger extends utils.Adapter {
 
 	// If you need to react to object changes, uncomment the following block and the corresponding line in the constructor.
 	// You also need to subscribe to the objects with `this.subscribeObjects`, similar to `this.subscribeStates`.
-	// /**
-	//  * Is called if a subscribed object changes
-	//  * @param {string} id
-	//  * @param {ioBroker.Object | null | undefined} obj
-	//  */
-	// onObjectChange(id, obj) {
-	// 	if (obj) {
-	// 		// The object was changed
-	// 		this.log.info(`object ${id} changed: ${JSON.stringify(obj)}`);
-	// 	} else {
-	// 		// The object was deleted
-	// 		this.log.info(`object ${id} deleted`);
-	// 	}
-	// }
+	/**
+	 * Is called if a subscribed object changes
+	 * @param {string} id
+	 * @param {ioBroker.Object | null | undefined} obj
+	 */
+	onObjectChange(id, obj) {
+		if (obj) {
+			// The object was changed
+			this.log.info(`object ${id} changed: ${JSON.stringify(obj)}`);
+		} else {
+			// The object was deleted
+			this.log.info(`object ${id} deleted`);
+		}
+	}
 
 	/**
 	 * Is called if a subscribed state changes
