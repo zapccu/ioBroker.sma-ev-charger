@@ -114,7 +114,7 @@ class SmaEvCharger extends utils.Adapter {
 
       // Subscribe to changes
       this.subscribeStates("*");
-      this.subscribeObjects("*");
+      // this.subscribeObjects("*");
       
       // Initial login
       if (!this.session.access_token) {
@@ -251,7 +251,8 @@ class SmaEvCharger extends utils.Adapter {
             const val = element.values[0].value;
             const elementObjects = element.channelId.split(".");
             const channel = elementObjects.shift().toLowerCase();
-            const datapoint = elementObjects.join("");
+            // Remove invalid characters from object path
+            const datapoint = elementObjects.join("").replace(/[^a-zA-Z0-9-_]/g, "");
             const objPath = channel + "." + datapoint;
             await this.setObjectNotExistsAsync(objPath, {
                type: "state",
@@ -264,7 +265,7 @@ class SmaEvCharger extends utils.Adapter {
                },
                native: {},
             });
-            this.setState(channel + "." + datapoint, val, true);
+            val && this.setState(channel + "." + datapoint, val, true);
          });
       })
       .catch((error) => {
@@ -301,14 +302,14 @@ class SmaEvCharger extends utils.Adapter {
          this.setState("info.connection", true, true);
          
          response.data[0].values.forEach(async(element) => {
-            const ts = Date.parse(element.timestamp);
+            // const ts = Date.parse(element.timestamp);
             const val = element.value;
             const elementObjects = element.channelId.split(".");
             const channel = elementObjects.shift().toLowerCase();
             // Remove invalid characters from object path
             const datapoint = elementObjects.join("").replace(/[^a-zA-Z0-9-_]/g, "");
             const objPath = channel + "." + datapoint;
-            await this.setObjectNotExistsAsync(objPath, {
+            var objDef = {
                type: "state",
                common: {
                   name: datapoint,
@@ -317,10 +318,56 @@ class SmaEvCharger extends utils.Adapter {
                   read: true,
                   write: element.editable,
                },
-               native: {},
-            });
-            this.setState(channel + "." + datapoint, val, true);
+               native: {}
+            };
+            if(element.possibleValues) {
+               objDef.common.states = element.possibleValues;
+            }
+            if(typeof val === "number") {
+               objDef.common.type = "number";
+               objDef.common.role = "value"
+            }
+            const obj = await this.setObjectNotExistsAsync(objPath, objDef);
+            val && this.setState(objPath, val, true);
+
+            // Save the channel ID for changing parameters
+            if(element.editable == true) {
+               this.channelId[obj.id] = element.channelId;
+            }
          });
+      })
+      .catch((error) => {
+         this.log.error(error);
+         error.response && this.log.error(JSON.stringify(error.response.data));
+      });
+   }
+
+   //
+   // Set charger parameter
+   //
+   setChargerParameter(smaChannelId, newValue) {
+      const smaUrl = "https://" + this.config.host + "/api/v1/parameters/IGULD:SELF";
+
+      const body = {
+         "values": [
+            { "channelId": smaChannelId },
+            { "value": newValue }
+         ]
+      }
+
+      await this.requestClient({
+         url: smaUrl,
+         method: "PUT",
+         headers: {
+            "Authorization": "Bearer " + this.session.access_token, 
+            "Accept": "*/*",
+            "Content-Type": "application/json"
+         },
+         data: JSON.stringify(body)
+      })
+      .then((response) => {
+         // this.log.info(JSON.stringify(response.data));
+         this.setState("info.connection", true, true);
       })
       .catch((error) => {
          this.log.error(error);
@@ -361,15 +408,15 @@ class SmaEvCharger extends utils.Adapter {
 	 * @param {string} id
 	 * @param {ioBroker.Object | null | undefined} obj
 	 */
-	onObjectChange(id, obj) {
-		if (obj) {
-			// The object was changed
-			this.log.info(`on object ${id} changed: ${JSON.stringify(obj)}`);
-		} else {
-			// The object was deleted
-			this.log.info(`on object ${id} deleted`);
-		}
-	}
+	// onObjectChange(id, obj) {
+	// 	if (obj) {
+	// 		// The object was changed
+	// 		this.log.info(`on object ${id} changed: ${JSON.stringify(obj)}`);
+	// 	} else {
+	// 		// The object was deleted
+	// 		this.log.info(`on object ${id} deleted`);
+	// 	}
+	// }
 
 	/**
 	 * Is called if a subscribed state changes
@@ -380,6 +427,12 @@ class SmaEvCharger extends utils.Adapter {
 		if (state) {
 			// The state was changed
 			this.log.info(`on state ${id} changed: ${state.val} (ack = ${state.ack})`);
+         if(this.channelId[id]) {
+            this.setChargerParameter(this.channelId[id], state);
+         }
+         else {
+            this.log.error(`Channel ID for ${id} not found`);
+         }
 		} else {
 			// The state was deleted
 			this.log.info(`on state ${id} deleted`);

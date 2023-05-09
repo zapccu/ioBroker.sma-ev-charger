@@ -175,6 +175,37 @@
 			},
 			"native": {}
 		},
+		{
+			"_id": "parameter.ChrgActChaMod",
+			"type": "state",
+			"common": {
+				"role": "text",
+				"name": "Ladevorgang Betriebsart",
+				"type": "string",
+				"read": true,
+				"write": true,
+            "states" {
+               "4718": "Schnellladen",
+               "4719": "Optimiertes Laden",
+               "4720": "Laden mit Vorgabe",
+               "4721": "Ladestopp"
+            }
+         },
+			"native": {}
+		},
+		{
+			"_id": "parameter.Chrg.AMinCha",
+			"type": "state",
+			"common": {
+				"role": "value",
+				"name": "Minimaler Ladestrom",
+				"type": "number",
+            "unit": "A",
+				"read": true,
+				"write": true
+         },
+			"native": {}
+		},
       {
 			"_id": "setpoint",
 			"type": "channel",
