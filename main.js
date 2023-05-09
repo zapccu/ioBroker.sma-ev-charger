@@ -153,12 +153,9 @@ class SmaEvCharger extends utils.Adapter {
    // Login to wallbox
    //
    async login() {
-      // this.log.info("hostname = " + this.config.host);
-      // this.log.info("username = " + this.config.username);
-      // this.log.info("password = " + this.config.password);
 
       const smaUrl = "https://" + this.config.host + "/api/v1/token";
-      this.log.info("Login URL = "+smaUrl);
+      // this.log.info("Login URL = "+smaUrl);
 
       const data = {
          grant_type: "password",
