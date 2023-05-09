@@ -263,7 +263,7 @@ class SmaEvCharger extends utils.Adapter {
                   read: true,
                   write: false,
                },
-               native: {},
+               native: {}
             });
             val && this.setState(channel + "." + datapoint, val, true);
          });
