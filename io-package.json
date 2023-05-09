@@ -180,15 +180,15 @@
 			"type": "state",
 			"common": {
 				"role": "text",
-				"name": "Ladevorgang Betriebsart",
+				"name": "Charging Mode",
 				"type": "string",
 				"read": true,
 				"write": true,
             "states" {
-               "4718": "Schnellladen",
-               "4719": "Optimiertes Laden",
-               "4720": "Laden mit Vorgabe",
-               "4721": "Ladestopp"
+               "4718": "Fast",
+               "4719": "Optimized",
+               "4720": "Fixed",
+               "4721": "Stop"
             }
          },
 			"native": {}
