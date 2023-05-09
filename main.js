@@ -428,7 +428,8 @@ class SmaEvCharger extends utils.Adapter {
 			// The state was changed
 			this.log.info(`on state ${id} changed: ${state.val} (ack = ${state.ack})`);
          if(this.channelId[id]) {
-            this.setChargerParameter(this.channelId[id], state);
+            this.log.info("setChargerParameter");
+            // this.setChargerParameter(this.channelId[id], state);
          }
          else {
             this.log.error(`Channel ID for ${id} not found`);
