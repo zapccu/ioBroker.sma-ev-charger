@@ -112,10 +112,66 @@
 			"native": {}
 		},
 		{
-			"_id": "parameters",
+			"_id": "measurement.MeteringGridMsTotWInChaSta",
+			"type": "state",
+			"common": {
+				"role": "value",
+				"name": "Leistung Ladestation",
+				"type": "number",
+            "unit": "W",
+				"read": true,
+				"write": false,
+				"def": 0
+			},
+			"native": {}
+		},
+		{
+			"_id": "measurement.MeteringGridMsTotWhInChaSta",
+			"type": "state",
+			"common": {
+				"role": "value",
+				"name": "Zähler Ladestation",
+				"type": "number",
+            "unit": "Wh",
+				"read": true,
+				"write": false,
+				"def": 0
+			},
+			"native": {}
+		},
+		{
+			"_id": "measurement.MeteringPCCMsPlntCsmpW",
+			"type": "state",
+			"common": {
+				"role": "value",
+				"name": "Leistung Netzbezug",
+				"type": "number",
+            "unit": "W",
+				"read": true,
+				"write": false,
+				"def": 0
+			},
+			"native": {}
+		},
+		{
+			"_id": "measurement.MeteringPCCMsPlntW",
+			"type": "state",
+			"common": {
+				"role": "value",
+				"name": "Leistung Netzeinspeisung",
+				"type": "number",
+            "unit": "W",
+				"read": true,
+				"write": false,
+				"def": 0
+			},
+			"native": {}
+		},
+      {
+			"_id": "parameter",
 			"type": "channel",
 			"common": {
-				"name": "Parameters"
+				"name": "Parameter"
 			},
 			"native": {}
 		}

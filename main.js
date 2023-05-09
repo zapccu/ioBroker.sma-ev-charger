@@ -147,7 +147,6 @@ class SmaEvCharger extends utils.Adapter {
             }, this.config.paramInterval * 1000);
          }
       }
-
    }
 
    //
@@ -232,7 +231,7 @@ class SmaEvCharger extends utils.Adapter {
       this.log.info("Updating charger information");
 
       const smaUrl = "https://" + this.config.host + "/api/v1/measurements/live";
-      this.log.info("Fetch Info URL = "+smaUrl);
+      // this.log.info("Fetch Info URL = "+smaUrl);
 
       const body = [ {"componentId": "IGULD:SELF"} ];
    
@@ -247,14 +246,14 @@ class SmaEvCharger extends utils.Adapter {
          data: JSON.stringify(body)
       })
       .then((response) => {
-         this.log.info(JSON.stringify(response.data));
+         // this.log.info(JSON.stringify(response.data));
          this.setState("info.connection", true, true);
          
          response.data.forEach(async(element) => {
             const ts = Date.parse(element.values[0].time);
             const val = element.values[0].value;
             const elementObjects = element.channelId.split(".");
-            const channel = elementObjects.shift();
+            const channel = elementObjects.shift().toLowerCase();
             const datapoint = elementObjects.join("");
             const objPath = channel + "." + datapoint;
             await this.setObjectNotExistsAsync(objPath, {
@@ -268,7 +267,6 @@ class SmaEvCharger extends utils.Adapter {
                },
                native: {},
             });
-            //   this.log.info(element.channelId + " at " + ts + " = " + val);
             this.setState(channel + "." + datapoint, val, true);
          });
       })
@@ -284,6 +282,52 @@ class SmaEvCharger extends utils.Adapter {
    async updateChargerParameters() {
       this.log.info("Updating charger parameters");
 
+      const smaUrl = "https://" + this.config.host + "/api/v1/parameters/search/";
+      this.log.info("Fetch Parameters URL = "+smaUrl);
+
+      const body = {
+         "queryItems": [ { "componentId": "IGULD:SELF" } ]
+      }
+   
+      await this.requestClient({
+         url: smaUrl,
+         method: "POST",
+         headers: {
+            "Authorization": "Bearer " + this.session.access_token, 
+            "Accept": "*/*",
+            "Content-Type": "application/json"
+         },
+         data: JSON.stringify(body)
+      })
+      .then((response) => {
+         this.log.info(JSON.stringify(response.data));
+         this.setState("info.connection", true, true);
+         
+         response.data[0].values.forEach(async(element) => {
+            const ts = Date.parse(element.timestamp);
+            const val = element.value;
+            const elementObjects = element.channelId.split(".");
+            const channel = elementObjects.shift().toLowerCase();
+            const datapoint = elementObjects.join("");
+            const objPath = channel + "." + datapoint;
+            await this.setObjectNotExistsAsync(objPath, {
+               type: "state",
+               common: {
+                  name: datapoint,
+                  type: "string",
+                  role: "text",
+                  read: true,
+                  write: element.editable,
+               },
+               native: {},
+            });
+            this.setState(channel + "." + datapoint, val, true);
+         });
+      })
+      .catch((error) => {
+         this.log.error(error);
+         error.response && this.log.error(JSON.stringify(error.response.data));
+      });
    }
 
 	/**
