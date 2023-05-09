@@ -249,7 +249,8 @@ class SmaEvCharger extends utils.Adapter {
       .then((response) => {
          this.log.info(JSON.stringify(response.data));
          this.setState("info.connection", true, true);
-         response.data.forEach(element => {
+         
+         response.data.forEach(async(element) => {
             const ts = Date.parse(element.values[0].time);
             const val = element.values[0].value;
             const elementObjects = element.channelId.split(".");
@@ -321,10 +322,10 @@ class SmaEvCharger extends utils.Adapter {
 	onObjectChange(id, obj) {
 		if (obj) {
 			// The object was changed
-			this.log.info(`object ${id} changed: ${JSON.stringify(obj)}`);
+			this.log.info(`on object ${id} changed: ${JSON.stringify(obj)}`);
 		} else {
 			// The object was deleted
-			this.log.info(`object ${id} deleted`);
+			this.log.info(`on object ${id} deleted`);
 		}
 	}
 
@@ -336,10 +337,10 @@ class SmaEvCharger extends utils.Adapter {
 	onStateChange(id, state) {
 		if (state) {
 			// The state was changed
-			this.log.info(`state ${id} changed: ${state.val} (ack = ${state.ack})`);
+			this.log.info(`on state ${id} changed: ${state.val} (ack = ${state.ack})`);
 		} else {
 			// The state was deleted
-			this.log.info(`state ${id} deleted`);
+			this.log.info(`on state ${id} deleted`);
 		}
 	}
 
