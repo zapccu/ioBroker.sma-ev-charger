@@ -308,7 +308,7 @@ class SmaEvCharger extends utils.Adapter {
             const val = element.value;
             const elementObjects = element.channelId.split(".");
             const channel = elementObjects.shift().toLowerCase();
-            const datapoint = elementObjects.join("").replace(/[^a-zA-Z0-9-_]/g, ""]);
+            const datapoint = elementObjects.join("").replace(/[^a-zA-Z0-9-_]/g, "");
             const objPath = channel + "." + datapoint;
             await this.setObjectNotExistsAsync(objPath, {
                type: "state",
