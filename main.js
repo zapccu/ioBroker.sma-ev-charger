@@ -31,9 +31,9 @@ class SmaEvCharger extends utils.Adapter {
       this.session = {};
 	}
 
-	/**
-	 * Is called when databases are connected and adapter received configuration.
-	 */
+   /**
+    * Is called when databases are connected and adapter received configuration.
+    */
    async onReady() {
       // Initialize your adapter here
 
@@ -334,7 +334,7 @@ class SmaEvCharger extends utils.Adapter {
 	 * Is called when adapter shuts down - callback has to be called under any circumstances!
 	 * @param {() => void} callback
 	 */
-	onUnload(callback) {
+   onUnload(callback) {
 		try {
          this.log.info("Cleaning up");
 
