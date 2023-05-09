@@ -9,6 +9,7 @@ process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 // The adapter-core module gives you access to the core ioBroker functions
 // you need to create an adapter
 const utils = require("@iobroker/adapter-core");
+
 const axios = require("axios");
 const qs = require("qs");
 
@@ -33,19 +34,19 @@ class SmaEvCharger extends utils.Adapter {
 	/**
 	 * Is called when databases are connected and adapter received configuration.
 	 */
-	async onReady() {
-		// Initialize your adapter here
+   async onReady() {
+      // Initialize your adapter here
 
-		// Reset the connection indicator during startup
-		this.setState("info.connection", false, true);
+      // Reset the connection indicator during startup
+      this.setState("info.connection", false, true);
 
 		// The adapters config (in the instance object everything under the attribute "native") is accessible via
 		// this.config:
-		this.log.info("config host: " + this.config.host);
-		this.log.info("config username: " + this.config.username);
-		this.log.info("config password: " + this.config.password);
-		this.log.info("info interval: " + this.config.infoInterval);
-		this.log.info("param interval: " + this.config.paramInterval);
+      this.config.host && this.log.info("config host: " + this.config.host);
+      this.config.username && this.log.info("config username: " + this.config.username);
+      this.config.password && this.log.info("config password: " + this.config.password);
+      this.config.infoInterval && this.log.info("info interval: " + this.config.infoInterval);
+      this.config.paramInterval && this.log.info("param interval: " + this.config.paramInterval);
 
 		/*
 		For every state in the system there has to be also an object of type state
@@ -53,44 +54,44 @@ class SmaEvCharger extends utils.Adapter {
 		Because every adapter instance uses its own unique namespace variable names can't collide with other adapters variables
 		*/
 		await this.setObjectNotExistsAsync("connectionState", {
-			type: "state",
-			common: {
-				name: "connectionState",
-				type: "boolean",
-				role: "indicator",
-				read: true,
-				write: true,
-			},
-			native: {},
+         type: "state",
+         common: {
+            name: "connectionState",
+            type: "boolean",
+            role: "indicator",
+            read: true,
+            write: true,
+         },
+         native: {},
 		});
 
-		// In order to get state updates, you need to subscribe to them. The following line adds a subscription for our variable we have created above.
-		// this.subscribeStates("connectionState");
-		// You can also add a subscription for multiple states. The following line watches all states starting with "lights."
-		// this.subscribeStates("lights.*");
-		// Or, if you really must, you can also watch all states. Don't do this if you don't need to. Otherwise this will cause a lot of unnecessary load on the system:
-		// this.subscribeStates("*");
+      // In order to get state updates, you need to subscribe to them. The following line adds a subscription for our variable we have created above.
+      // this.subscribeStates("connectionState");
+      // You can also add a subscription for multiple states. The following line watches all states starting with "lights."
+      // this.subscribeStates("lights.*");
+      // Or, if you really must, you can also watch all states. Don't do this if you don't need to. Otherwise this will cause a lot of unnecessary load on the system:
+      // this.subscribeStates("*");
 
-		/*
-			setState examples
-			you will notice that each setState will cause the stateChange event to fire (because of above subscribeStates cmd)
-		*/
-		// the variable testVariable is set to true as command (ack=false)
-		await this.setStateAsync("connectionState", true);
+      /*
+         setState examples
+         you will notice that each setState will cause the stateChange event to fire (because of above subscribeStates cmd)
+      */
+      // the variable testVariable is set to true as command (ack=false)
+      await this.setStateAsync("connectionState", true);
 
-		// same thing, but the value is flagged "ack"
-		// ack should be always set to true if the value is received from or acknowledged from the target system
-		await this.setStateAsync("connectionState", { val: true, ack: true });
+      // same thing, but the value is flagged "ack"
+      // ack should be always set to true if the value is received from or acknowledged from the target system
+      await this.setStateAsync("connectionState", { val: true, ack: true });
 
-		// same thing, but the state is deleted after 30s (getState will return null afterwards)
-		await this.setStateAsync("connectionState", { val: true, ack: true, expire: 30 });
+      // same thing, but the state is deleted after 30s (getState will return null afterwards)
+      await this.setStateAsync("connectionState", { val: true, ack: true, expire: 30 });
 
-		// examples for the checkPassword/checkGroup functions
-		// let result = await this.checkPasswordAsync("admin", "iobroker");
-		// this.log.info("check user admin pw iobroker: " + result);
+      // examples for the checkPassword/checkGroup functions
+      // let result = await this.checkPasswordAsync("admin", "iobroker");
+      // this.log.info("check user admin pw iobroker: " + result);
 
-		// result = await this.checkGroupAsync("admin", "admin");
-		// this.log.info("check group user admin group admin: " + result);
+      // result = await this.checkGroupAsync("admin", "admin");
+      // this.log.info("check group user admin group admin: " + result);
 
       this.adapterConfig = "system.adapter." + this.name + "." + this.instance;
       const obj = await this.getForeignObjectAsync(this.adapterConfig);
@@ -218,14 +219,14 @@ class SmaEvCharger extends utils.Adapter {
          data: qs.stringify(data)
       })
       .then((response) => {
-            this.log.info(JSON.stringify(response.data));
-            this.session = response.data;
-            this.setState("info.connection", true, true);
-            this.log.info(`Connected to ${this.config.host} `);
+         this.log.info(JSON.stringify(response.data));
+         this.session = response.data;
+         this.setState("info.connection", true, true);
+         this.log.info(`Connected to ${this.config.host} `);
       })
       .catch((error) => {
-            this.log.error(error);
-            error.response && this.log.error(JSON.stringify(error.response.data));
+         this.log.error(error);
+         error.response && this.log.error(JSON.stringify(error.response.data));
       });
    }
 
@@ -250,14 +251,19 @@ class SmaEvCharger extends utils.Adapter {
          },
          data: JSON.stringify(body)
       })
-         .then((response) => {
-             this.log.info(JSON.stringify(response.data));
-             this.setState("info.connection", true, true);
-         })
-         .catch((error) => {
-             this.log.error(error);
-             error.response && this.log.error(JSON.stringify(error.response.data));
+      .then((response) => {
+         this.log.info(JSON.stringify(response.data));
+         this.setState("info.connection", true, true);
+         response.data.forEach(element => {
+            const ts = Date.parse(element.values[0].time);
+            const val = element.values[0].value;
+            this.log.info(element.channelId + " at " + ts + " = " + val);
          });
+      })
+      .catch((error) => {
+         this.log.error(error);
+         error.response && this.log.error(JSON.stringify(error.response.data));
+      });
    }
 
    //
@@ -274,7 +280,10 @@ class SmaEvCharger extends utils.Adapter {
 	 */
 	onUnload(callback) {
 		try {
+         this.log.info("Cleaning up");
+
          this.setState("info.connection", false, true);
+         
          this.updateInfoInterval && this.clearInterval(this.updateInfoInterval);
          this.updateParamInterval && this.clearInterval(this.updateParamInterval);
          this.refreshTokenInterval && this.clearInterval(this.refreshTokenInterval);
