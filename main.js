@@ -257,8 +257,10 @@ class SmaEvCharger extends utils.Adapter {
          response.data.forEach(element => {
             const ts = Date.parse(element.values[0].time);
             const val = element.values[0].value;
-            const elementObjects = element.channelId.split(".", 1);
-            this.setState(elementObjects[0] + "." + elementObjects[1].replace(".", ""), val, true);
+            const elementObjects = element.channelId.split(".");
+            const channel = elementObjects.shift();
+            const datapoint = elementObjects.join("");
+            this.setState(channel + "." + datapoint, val, true);
          //   this.log.info(element.channelId + " at " + ts + " = " + val);
          });
       })
