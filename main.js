@@ -300,7 +300,7 @@ class SmaEvCharger extends utils.Adapter {
          data: JSON.stringify(body)
       })
       .then((response) => {
-         this.log.info(JSON.stringify(response.data));
+         // this.log.info(JSON.stringify(response.data));
          this.setState("info.connection", true, true);
          
          response.data[0].values.forEach(async(element) => {
