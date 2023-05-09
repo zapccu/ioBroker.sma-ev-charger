@@ -42,11 +42,6 @@ class SmaEvCharger extends utils.Adapter {
 
 		// The adapters config (in the instance object everything under the attribute "native") is accessible via
 		// this.config:
-      this.config.host && this.log.info("config host: " + this.config.host);
-      this.config.username && this.log.info("config username: " + this.config.username);
-      this.config.password && this.log.info("config password: " + this.config.password);
-      this.config.infoInterval && this.log.info("info interval: " + this.config.infoInterval);
-      this.config.paramInterval && this.log.info("param interval: " + this.config.paramInterval);
 
 		/*
 		For every state in the system there has to be also an object of type state
@@ -260,8 +255,20 @@ class SmaEvCharger extends utils.Adapter {
             const elementObjects = element.channelId.split(".");
             const channel = elementObjects.shift();
             const datapoint = elementObjects.join("");
+            const objPath = channel + "." + datapoint;
+            await this.setObjectNotExistsAsync(objPath, {
+               type: "state",
+               common: {
+                  name: datapoint,
+                  type: "number",
+                  role: "value",
+                  read: true,
+                  write: false,
+               },
+               native: {},
+            });
+            //   this.log.info(element.channelId + " at " + ts + " = " + val);
             this.setState(channel + "." + datapoint, val, true);
-         //   this.log.info(element.channelId + " at " + ts + " = " + val);
          });
       })
       .catch((error) => {
