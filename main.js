@@ -186,14 +186,14 @@ class SmaEvCharger extends utils.Adapter {
          data: qs.stringify(data)
       })
       .then((response) => {
-            this.log.info(JSON.stringify(response.data));
-            this.session = response.data;
-            this.setState("info.connection", true, true);
-            this.log.info(`Connected to ${this.config.host} `);
+         this.log.info(JSON.stringify(response.data));
+         this.session = response.data;
+         this.setState("info.connection", true, true);
+         this.log.info(`Connected to ${this.config.host} `);
       })
       .catch((error) => {
-            this.log.error(error);
-            error.response && this.log.error(JSON.stringify(error.response.data));
+         this.log.error(error);
+         error.response && this.log.error(JSON.stringify(error.response.data));
       });
    }
 
@@ -257,7 +257,7 @@ class SmaEvCharger extends utils.Adapter {
          response.data.forEach(element => {
             const ts = Date.parse(element.values[0].time);
             const val = element.values[0].value;
-            setState(element.channelId, val, true);
+            this.setState(element.channelId, val, true);
          //   this.log.info(element.channelId + " at " + ts + " = " + val);
          });
       })
