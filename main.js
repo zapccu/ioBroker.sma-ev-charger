@@ -283,7 +283,7 @@ class SmaEvCharger extends utils.Adapter {
       this.log.info("Updating charger parameters");
 
       const smaUrl = "https://" + this.config.host + "/api/v1/parameters/search/";
-      this.log.info("Fetch Parameters URL = "+smaUrl);
+      // this.log.info("Fetch Parameters URL = "+smaUrl);
 
       const body = {
          "queryItems": [ { "componentId": "IGULD:SELF" } ]
@@ -308,7 +308,7 @@ class SmaEvCharger extends utils.Adapter {
             const val = element.value;
             const elementObjects = element.channelId.split(".");
             const channel = elementObjects.shift().toLowerCase();
-            const datapoint = elementObjects.join("");
+            const datapoint = elementObjects.join("").replace(/[^a-zA-Z0-9-_]/g, ""]);
             const objPath = channel + "." + datapoint;
             await this.setObjectNotExistsAsync(objPath, {
                type: "state",
