@@ -45,7 +45,7 @@
 			"pl": "Adapter for SMA EV Charger wallbox",
 			"zh-cn": "Adapter for SMA EV Charger wallbox"
 		},
-		"authors": ["zapccu <d.braner@gmx.net>"],
+		"authors": ["zap <d.braner@gmx.net>"],
 		"keywords": ["wallbox", "sma", "charger"],
 		"license": "MIT",
 		"platform": "Javascript/Node.js",

@@ -1,15 +1,17 @@
 {
   "name": "iobroker.sma-ev-charger",
-  "version": "0.0.1",
+  "version": "0.0.8",
   "description": "Adapter for SMA EV Charger wallbox",
   "author": {
-    "name": "zapccu",
+    "name": "zap",
     "email": "d.braner@gmx.net"
   },
   "homepage": "https://github.com/zapccu/ioBroker.sma-ev-charger",
   "license": "MIT",
   "keywords": [
-    "wallbox"
+    "wallbox",
+    "sma",
+    "charger"
   ],
   "repository": {
     "type": "git",
