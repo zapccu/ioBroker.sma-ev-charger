@@ -178,7 +178,7 @@ class SmaEvCharger extends utils.Adapter {
          data: qs.stringify(data)
       })
       .then((response) => {
-         this.log.info(JSON.stringify(response.data));
+         // this.log.info(JSON.stringify(response.data));
          this.session = response.data;
          this.setState("info.connection", true, true);
          this.log.info(`Connected to ${this.config.host} `);
@@ -333,8 +333,8 @@ class SmaEvCharger extends utils.Adapter {
 
             // Save the channel ID for changing parameters
             if(element.editable == true) {
-               this.log.info("Storing channelId for object " + obj);
-               this.channelId[obj.id] = element.channelId;
+               this.log.info("Storing channelId for object " + JSON.stringify(obj));
+               // this.channelId[obj.id] = element.channelId;
             }
          });
       })
@@ -428,7 +428,7 @@ class SmaEvCharger extends utils.Adapter {
 	onStateChange(id, state) {
 		if (state) {
 			// The state was changed
-			this.log.info(`on state ${id} changed: ${state.val} (ack = ${state.ack})`);
+			// this.log.info(`on state ${id} changed: ${state.val} (ack = ${state.ack})`);
          if(this.channelId[id]) {
             if(state.ack === false) {
                this.log.info("ack=false => setChargerParameter for id " + id);
