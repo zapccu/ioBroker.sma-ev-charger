@@ -333,6 +333,7 @@ class SmaEvCharger extends utils.Adapter {
 
             // Save the channel ID for changing parameters
             if(element.editable == true) {
+               this.log.info("Storing channelId for object " + obj.id);
                this.channelId[obj.id] = element.channelId;
             }
          });
@@ -429,8 +430,10 @@ class SmaEvCharger extends utils.Adapter {
 			// The state was changed
 			this.log.info(`on state ${id} changed: ${state.val} (ack = ${state.ack})`);
          if(this.channelId[id]) {
-            this.log.info("setChargerParameter");
+            if(state.ack === false) {
+               this.log.info("ack=false => setChargerParameter for id " + id);
             // this.setChargerParameter(this.channelId[id], state);
+            }
          }
          else {
             this.log.error(`Channel ID for ${id} not found`);

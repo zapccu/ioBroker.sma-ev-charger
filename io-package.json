@@ -194,7 +194,7 @@
 			"native": {}
 		},
 		{
-			"_id": "parameter.Chrg.AMinCha",
+			"_id": "parameter.ChrgAMinCha",
 			"type": "state",
 			"common": {
 				"role": "value",
