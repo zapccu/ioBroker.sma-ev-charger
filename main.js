@@ -29,7 +29,6 @@ class SmaEvCharger extends utils.Adapter {
 		this.on("unload", this.onUnload.bind(this));
 
       this.session = {};
-      this.channelId = [];
 	}
 
    /**
@@ -262,7 +261,7 @@ class SmaEvCharger extends utils.Adapter {
                   type: "number",
                   role: "value",
                   read: true,
-                  write: false,
+                  write: false
                },
                native: {}
             });
@@ -317,25 +316,26 @@ class SmaEvCharger extends utils.Adapter {
                   type: "string",
                   role: "text",
                   read: true,
-                  write: element.editable,
+                  write: element.editable
                },
                native: {}
             };
+            // Store channel id for editable parameters
+            if(element.editable === true) {
+               objDef.common.custom.channelId = element.channelId;
+            }
+            // Store list of possible values for enumerations
             if(element.possibleValues) {
                objDef.common.states = element.possibleValues;
             }
+            // Adjust parameter type
             if(typeof val === "number") {
                objDef.common.type = "number";
                objDef.common.role = "value"
             }
-            const obj = await this.setObjectNotExistsAsync(objPath, objDef);
+            // Create object if it doesn't exist
+            await this.setObjectNotExistsAsync(objPath, objDef);
             val && this.setState(objPath, val, true);
-
-            // Save the channel ID for changing parameters
-            if(element.editable == true) {
-               this.log.info("Storing channelId for object " + JSON.stringify(obj));
-               // this.channelId[obj.id] = element.channelId;
-            }
          });
       })
       .catch((error) => {
@@ -429,10 +429,20 @@ class SmaEvCharger extends utils.Adapter {
 		if (state) {
 			// The state was changed
 			// this.log.info(`on state ${id} changed: ${state.val} (ack = ${state.ack})`);
-         if(this.channelId[id]) {
-            if(state.ack === false) {
-               this.log.info("ack=false => setChargerParameter for id " + id);
-               // this.setChargerParameter(this.channelId[id], state);
+         if(state.ack === false) {
+            // The state was changed by the user. Update charger parameter
+            const obj = this.getObject(id);
+            if(obj) {
+               if(obj.common.custom.channelId) {
+                  this.log.info("ack=false => setChargerParameter for id " + id + " channelId=" + obj.common.custom.channelId);
+                  // this.setChargerParameter(obj.common.custom.channelId, state);   
+               }
+               else {
+                  this.log.info("Channel id not found in object " + id)
+               }
+            }
+            else {
+               this.log.error("Object not found " + id);
             }
          }
 		} else {
