@@ -29,6 +29,7 @@ class SmaEvCharger extends utils.Adapter {
 		this.on("unload", this.onUnload.bind(this));
 
       this.session = {};
+      this.channelId = [];
 	}
 
    /**
@@ -48,17 +49,17 @@ class SmaEvCharger extends utils.Adapter {
 		Here a simple template for a boolean variable named "testVariable"
 		Because every adapter instance uses its own unique namespace variable names can't collide with other adapters variables
 		*/
-		await this.setObjectNotExistsAsync("connectionState", {
-         type: "state",
-         common: {
-            name: "connectionState",
-            type: "boolean",
-            role: "indicator",
-            read: true,
-            write: true,
-         },
-         native: {},
-		});
+		// await this.setObjectNotExistsAsync("connectionState", {
+      //    type: "state",
+      //    common: {
+      //       name: "connectionState",
+      //       type: "boolean",
+      //       role: "indicator",
+      //       read: true,
+      //       write: true,
+      //    },
+      //    native: {},
+		// });
 
       // In order to get state updates, you need to subscribe to them. The following line adds a subscription for our variable we have created above.
       // this.subscribeStates("connectionState");
