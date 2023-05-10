@@ -184,7 +184,7 @@
 				"type": "string",
 				"read": true,
 				"write": true,
-            "states" {
+            "states": {
                "4718": "Fast",
                "4719": "Optimized",
                "4720": "Fixed",

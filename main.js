@@ -345,7 +345,7 @@ class SmaEvCharger extends utils.Adapter {
    //
    // Set charger parameter
    //
-   setChargerParameter(smaChannelId, newValue) {
+   async setChargerParameter(smaChannelId, newValue) {
       const smaUrl = "https://" + this.config.host + "/api/v1/parameters/IGULD:SELF";
 
       const body = {
