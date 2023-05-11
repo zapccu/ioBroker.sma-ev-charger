@@ -392,7 +392,7 @@ class SmaEvCharger extends utils.Adapter {
 			// this.log.info(`on state ${id} changed: ${state.val} (ack = ${state.ack})`);
          if(state.ack === false) {
             // The state was changed by the user. Update charger parameter
-            const obj = this.getObject(id);
+            const obj = getObject(id);
             if(obj) {
                if(obj.common.custom.channelId) {
                   this.log.info("ack=false => setChargerParameter for id " + id + " channelId=" + obj.common.custom.channelId);
