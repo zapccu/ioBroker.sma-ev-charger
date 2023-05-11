@@ -324,7 +324,7 @@ class SmaEvCharger extends utils.Adapter {
             };
             // Store channel id for editable parameters
             if(element.editable === true) {
-               objDef.common.custom.channelId = element.channelId;
+               objDef.common.custom = { "channelId": element.channelId };
             }
             // Store list of possible values for enumerations
             if(element.possibleValues) {
