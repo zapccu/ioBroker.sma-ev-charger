@@ -304,47 +304,56 @@ class SmaEvCharger extends utils.Adapter {
          this.setState("info.connection", true, true);
          
          response.data[0].values.forEach(async(element) => {
-            // const ts = Date.parse(element.timestamp);
-            const val = element.value;
-            const elementObjects = element.channelId.split(".");
-            const channel = elementObjects.shift().toLowerCase();
-            // Remove invalid characters from object path
-            const datapoint = elementObjects.join("").replace(/[^a-zA-Z0-9-_]/g, "");
-            const objPath = channel + "." + datapoint;
-            var objDef = {
-               type: "state",
-               common: {
-                  name: datapoint,
-                  type: "string",
-                  role: "text",
-                  read: true,
-                  write: element.editable
-               },
-               native: {}
-            };
-            // Store channel id for editable parameters
-            if(element.editable === true) {
-               objDef.common.custom = { "channelId": element.channelId };
-            }
-            // Store list of possible values for enumerations
-            if(element.possibleValues) {
-               objDef.common.states = element.possibleValues;
-            }
-            // Adjust parameter type
-            if(!isNaN(val)) {
-               objDef.common.type = "number";
-               objDef.common.role = "value"
-            }
-            // Create object if it doesn't exist
-            await this.setObjectNotExistsAsync(objPath, objDef);
-            val && this.log.info("Type of " + val + " is " + typeof val);
-            val && this.setState(objPath, val, true);
+            await this.setChargerObject(element);
          });
       })
       .catch((error) => {
          this.log.error(error);
          error.response && this.log.error(JSON.stringify(error.response.data));
       });
+   }
+
+   //
+   // Create object and update state
+   //
+   async setChargerObject(element) {
+      // const ts = Date.parse(element.timestamp);
+      const val = element.value;
+      const elementObjects = element.channelId.split(".");
+      const channel = elementObjects.shift().toLowerCase();
+      // Remove invalid characters from object path
+      const datapoint = elementObjects.join("").replace(/[^a-zA-Z0-9-_]/g, "");
+      const objPath = channel + "." + datapoint;
+      const editable = element.editable || false;
+      var objDef = {
+         type: "state",
+         common: {
+            name: datapoint,
+            type: "string",
+            role: "text",
+            read: true,
+            write: editable
+         },
+         native: {}
+      };
+
+      // Store channel id for editable parameters
+      objDef.common.custom = { "channelId": element.channelId };
+
+      // Store list of possible values for enumerations
+      if(element.possibleValues) {
+         objDef.common.states = element.possibleValues;
+      }
+
+      // Adjust parameter type (default is string)
+      if(!isNaN(val)) {
+         objDef.common.type = "number";
+         objDef.common.role = "value"
+      }
+
+      // Create object if it doesn't exist and update state
+      await this.setObjectNotExistsAsync(objPath, objDef);
+      val && this.setState(objPath, IsNaN(val) ? val : Number(val), true);   
    }
 
    //
@@ -450,7 +459,7 @@ class SmaEvCharger extends utils.Adapter {
          }
 		} else {
 			// The state was deleted
-			this.log.info(`on state ${id} deleted`);
+			// this.log.info(`on state ${id} deleted`);
 		}
 	}
 
