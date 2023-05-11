@@ -216,7 +216,7 @@ class SmaEvCharger extends utils.Adapter {
          this.setState("info.connection", true, true);
          
          response.data.forEach(async(element) => {
-            await this.setChargerObject(element);
+            await this.setChargerObject(element, element.values[0].value);
          });
       })
       .catch((error) => {
@@ -253,7 +253,7 @@ class SmaEvCharger extends utils.Adapter {
          this.setState("info.connection", true, true);
          
          response.data[0].values.forEach(async(element) => {
-            await this.setChargerObject(element);
+            await this.setChargerObject(element, element.value);
          });
       })
       .catch((error) => {
@@ -265,9 +265,8 @@ class SmaEvCharger extends utils.Adapter {
    //
    // Create object and update state
    //
-   async setChargerObject(element) {
+   async setChargerObject(element, value) {
       // const ts = Date.parse(element.timestamp);
-      const val = element.value;
       const elementObjects = element.channelId.split(".");
       const channel = elementObjects.shift().toLowerCase();
       // Remove invalid characters from object path
@@ -295,14 +294,14 @@ class SmaEvCharger extends utils.Adapter {
       }
 
       // Adjust parameter type (default is string)
-      if(!isNaN(val)) {
+      if(!isNaN(value)) {
          objDef.common.type = "number";
          objDef.common.role = "value"
       }
 
       // Create object if it doesn't exist and update state
       await this.setObjectNotExistsAsync(objPath, objDef);
-      val && this.setState(objPath, isNaN(val) ? val : Number(val), true);   
+      value && this.setState(objPath, isNaN(value) ? value : Number(value), true);   
    }
 
    //
@@ -392,7 +391,7 @@ class SmaEvCharger extends utils.Adapter {
 			// this.log.info(`on state ${id} changed: ${state.val} (ack = ${state.ack})`);
          if(state.ack === false) {
             // The state was changed by the user. Update charger parameter
-            const obj = getObject(id);
+            const obj = this.getObject(id);
             if(obj) {
                if(obj.common.custom.channelId) {
                   this.log.info("ack=false => setChargerParameter for id " + id + " channelId=" + obj.common.custom.channelId);
@@ -403,7 +402,7 @@ class SmaEvCharger extends utils.Adapter {
                }
             }
             else {
-               this.log.error("Object not found " + id);
+               this.log.error("Object not found " + id + " channel ID = " + obj.common.name);
             }
          }
 		} else {
