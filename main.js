@@ -216,7 +216,7 @@ class SmaEvCharger extends utils.Adapter {
          this.setState("info.connection", true, true);
          
          response.data.forEach(async(element) => {
-            await this.setChargerObject(element, element.values[0].value);
+            await this.setChargerObjectValue(element, element.values[0].value);
          });
       })
       .catch((error) => {
@@ -253,7 +253,7 @@ class SmaEvCharger extends utils.Adapter {
          this.setState("info.connection", true, true);
          
          response.data[0].values.forEach(async(element) => {
-            await this.setChargerObject(element, element.value);
+            await this.setChargerObjectValue(element, element.value);
          });
       })
       .catch((error) => {
@@ -265,7 +265,7 @@ class SmaEvCharger extends utils.Adapter {
    //
    // Create object and update state
    //
-   async setChargerObject(element, value) {
+   async setChargerObjectValue(element, value) {
       // const ts = Date.parse(element.timestamp);
       const elementObjects = element.channelId.split(".");
       const channel = elementObjects.shift().toLowerCase();
@@ -300,7 +300,10 @@ class SmaEvCharger extends utils.Adapter {
       }
 
       // Create object if it doesn't exist and update state
-      await this.setObjectNotExistsAsync(objPath, objDef);
+      const obj = await this.setObjectNotExistsAsync(objPath, objDef);
+      if(!obj) {
+         await this.extendObjectAsync(objPath, objDef);
+      }
       value && this.setState(objPath, isNaN(value) ? value : Number(value), true);   
    }
 
@@ -337,10 +340,10 @@ class SmaEvCharger extends utils.Adapter {
       });
    }
 
-	/**
-	 * Is called when adapter shuts down - callback has to be called under any circumstances!
-	 * @param {() => void} callback
-	 */
+   /**
+    * Is called when adapter shuts down - callback has to be called under any circumstances!
+    * @param {() => void} callback
+    */
    onUnload(callback) {
 		try {
          this.log.info("Cleaning up");
@@ -380,15 +383,15 @@ class SmaEvCharger extends utils.Adapter {
 	// 	}
 	// }
 
-	/**
-	 * Is called if a subscribed state changes
-	 * @param {string} id
-	 * @param {ioBroker.State | null | undefined} state
-	 */
-	onStateChange(id, state) {
-		if (state) {
-			// The state was changed
-			// this.log.info(`on state ${id} changed: ${state.val} (ack = ${state.ack})`);
+   /**
+    * Is called if a subscribed state changes
+    * @param {string} id
+    * @param {ioBroker.State | null | undefined} state
+    */
+   onStateChange(id, state) {
+      if (state) {
+         // The state was changed
+         // this.log.info(`on state ${id} changed: ${state.val} (ack = ${state.ack})`);
          if(state.ack === false) {
             // The state was changed by the user. Update charger parameter
             this.getObject(id, (err,obj) => {
@@ -405,11 +408,11 @@ class SmaEvCharger extends utils.Adapter {
                }
             });
          }
-		} else {
-			// The state was deleted
-			// this.log.info(`on state ${id} deleted`);
-		}
-	}
+      } else {
+         // The state was deleted
+         // this.log.info(`on state ${id} deleted`);
+      }
+   }
 
 	// If you need to accept messages in your adapter, uncomment the following block and the corresponding line in the constructor.
 	// /**
