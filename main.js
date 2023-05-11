@@ -391,16 +391,17 @@ class SmaEvCharger extends utils.Adapter {
 			// this.log.info(`on state ${id} changed: ${state.val} (ack = ${state.ack})`);
          if(state.ack === false) {
             // The state was changed by the user. Update charger parameter
-            this.getObject(id, function(err,obj) {
+            this.getObject(id, (err,obj) => {
                if(err) {
                   this.log.error("Object not found " + id);
                } else {
-                  if(obj.common.custom && obj.common.custom.channelId) {
-                     this.log.info("ack=false => setChargerParameter for id " + id + " channelId=" + obj.common.custom.channelId);
+                  this.log.info("obj = " + JSON.stringify(obj));
+                  // if(obj.common.custom && obj.common.custom.channelId) {
+                     // this.log.info("ack=false => setChargerParameter for id " + id + " channelId=" + obj.common.custom.channelId);
                      // this.setChargerParameter(obj.common.custom.channelId, state);   
-                  } else {
-                     this.log.info("Channel id not found in object " + id)
-                  }   
+                  // } else {
+                     // this.log.info("Channel id not found in object " + id + " object=" . JSON.stringify(obj));
+                  // }   
                }
             });
          }
