@@ -43,43 +43,12 @@ class SmaEvCharger extends utils.Adapter {
 		// The adapters config (in the instance object everything under the attribute "native") is accessible via
 		// this.config:
 
-		/*
-		For every state in the system there has to be also an object of type state
-		Here a simple template for a boolean variable named "testVariable"
-		Because every adapter instance uses its own unique namespace variable names can't collide with other adapters variables
-		*/
-		// await this.setObjectNotExistsAsync("connectionState", {
-      //    type: "state",
-      //    common: {
-      //       name: "connectionState",
-      //       type: "boolean",
-      //       role: "indicator",
-      //       read: true,
-      //       write: true,
-      //    },
-      //    native: {},
-		// });
-
       // In order to get state updates, you need to subscribe to them. The following line adds a subscription for our variable we have created above.
       // this.subscribeStates("connectionState");
       // You can also add a subscription for multiple states. The following line watches all states starting with "lights."
       // this.subscribeStates("lights.*");
       // Or, if you really must, you can also watch all states. Don't do this if you don't need to. Otherwise this will cause a lot of unnecessary load on the system:
       // this.subscribeStates("*");
-
-      /*
-         setState examples
-         you will notice that each setState will cause the stateChange event to fire (because of above subscribeStates cmd)
-      */
-      // the variable testVariable is set to true as command (ack=false)
-      await this.setStateAsync("connectionState", true);
-
-      // same thing, but the value is flagged "ack"
-      // ack should be always set to true if the value is received from or acknowledged from the target system
-      await this.setStateAsync("connectionState", { val: true, ack: true });
-
-      // same thing, but the state is deleted after 30s (getState will return null afterwards)
-      await this.setStateAsync("connectionState", { val: true, ack: true, expire: 30 });
 
       // examples for the checkPassword/checkGroup functions
       // let result = await this.checkPasswordAsync("admin", "iobroker");
@@ -247,27 +216,7 @@ class SmaEvCharger extends utils.Adapter {
          this.setState("info.connection", true, true);
          
          response.data.forEach(async(element) => {
-            const ts = Date.parse(element.values[0].time);
-            const val = element.values[0].value;
-            const elementObjects = element.channelId.split(".");
-            const channel = elementObjects.shift().toLowerCase();
-            // Remove invalid characters from object path
-            const datapoint = elementObjects.join("").replace(/[^a-zA-Z0-9-_]/g, "");
-            const objPath = channel + "." + datapoint;
-
-            // Create object if it doesn't exist
-            await this.setObjectNotExistsAsync(objPath, {
-               type: "state",
-               common: {
-                  name: datapoint,
-                  type: "number",
-                  role: "value",
-                  read: true,
-                  write: false
-               },
-               native: {}
-            });
-            val && this.setState(objPath, val, true);
+            await this.setChargerObject(element);
          });
       })
       .catch((error) => {
@@ -353,7 +302,7 @@ class SmaEvCharger extends utils.Adapter {
 
       // Create object if it doesn't exist and update state
       await this.setObjectNotExistsAsync(objPath, objDef);
-      val && this.setState(objPath, IsNaN(val) ? val : Number(val), true);   
+      val && this.setState(objPath, isNaN(val) ? val : Number(val), true);   
    }
 
    //

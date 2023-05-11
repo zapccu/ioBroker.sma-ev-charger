@@ -1,7 +1,7 @@
 {
 	"common": {
 		"name": "sma-ev-charger",
-		"version": "0.0.8",
+		"version": "0.0.9",
 		"news": {
 			"0.0.1": {
 				"en": "initial release",
@@ -15,7 +15,7 @@
 				"pl": "Pierwsze wydanie",
 				"zh-cn": "首次出版"
 			},
-         "0.0.8": {
+         "0.0.9": {
             "en": "Fetch info and parameters from charger",
             "de": "Daten und Parameter von Wallbox abfragen"
          }
@@ -78,7 +78,9 @@
 	"native": {
 		"host": "",
 		"username": "admin",
-		"password": ""
+		"password": "",
+      "infoInterval": 30,
+      "paramInterval": 119
 	},
 	"objects": [],
 	"instanceObjects": [

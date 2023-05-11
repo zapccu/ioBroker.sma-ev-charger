@@ -22,15 +22,15 @@
          "min": 0,
          "max": 3600,
          "default": 30,
-         "label": "Info update interval",
+         "label": "Info update interval, 0 = no update",
          "newLine": true
       },
       "paramInterval": {
          "type": "number",
          "min": 0,
          "max": 3600,
-         "default": 120,
-         "label": "Parameter update interval",
+         "default": 119,
+         "label": "Parameter update interval, 0 = no update",
          "newLine": true
       }
 	}
