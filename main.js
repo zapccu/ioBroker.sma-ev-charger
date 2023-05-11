@@ -267,7 +267,7 @@ class SmaEvCharger extends utils.Adapter {
                },
                native: {}
             });
-            val && this.setState(channel + "." + datapoint, val, true);
+            val && this.setState(objPath, val, true);
          });
       })
       .catch((error) => {
@@ -331,12 +331,13 @@ class SmaEvCharger extends utils.Adapter {
                objDef.common.states = element.possibleValues;
             }
             // Adjust parameter type
-            if(typeof val === "number") {
+            if(!isNaN(val)) {
                objDef.common.type = "number";
                objDef.common.role = "value"
             }
             // Create object if it doesn't exist
             await this.setObjectNotExistsAsync(objPath, objDef);
+            val && this.log.info("Type of " + val + " is " + typeof val);
             val && this.setState(objPath, val, true);
          });
       })

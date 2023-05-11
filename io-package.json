@@ -198,7 +198,7 @@
 			"type": "state",
 			"common": {
 				"role": "value",
-				"name": "Minimaler Ladestrom",
+				"name": "Minimum charge current",
 				"type": "number",
             "unit": "A",
 				"read": true,
