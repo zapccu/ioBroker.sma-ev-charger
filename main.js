@@ -102,17 +102,21 @@ class SmaEvCharger extends utils.Adapter {
             await this.refreshToken();
          }, refreshInterval * 1000);
 
+         // Create objects
+         await.this.updateChargerInformation(true);
+         await.this.updateChargerParameters(true);
+
          // Timer for updating the wallbox information
          if (this.config.infoInterval > 0) {
             this.updateInfoInterval = setInterval(async () => {
-               await this.updateChargerInformation();
+               await this.updateChargerInformation(false);
             }, this.config.infoInterval * 1000);
          }
 
          // Timer for updating the wallbox configuration
          if (this.config.paramInterval > 0) {
             this.updateParamInterval = setInterval(async () => {
-               await this.updateChargerParameters();
+               await this.updateChargerParameters(false);
             }, this.config.paramInterval * 1000);
          }
       }
@@ -193,8 +197,8 @@ class SmaEvCharger extends utils.Adapter {
    //
    // Refresh the charger information
    //
-   async updateChargerInformation() {
-      this.log.info("Updating charger information");
+   async updateChargerInformation(createFlag) {
+      createFlag && this.log.info("Initial update of charger information");
 
       const smaUrl = "https://" + this.config.host + "/api/v1/measurements/live";
       // this.log.info("Fetch Info URL = "+smaUrl);
@@ -216,7 +220,7 @@ class SmaEvCharger extends utils.Adapter {
          this.setState("info.connection", true, true);
          
          response.data.forEach(async(element) => {
-            await this.setChargerObjectValue(element, element.values[0].value);
+            await this.setChargerObjectValue(createFlag, element, element.values[0].value;);
          });
       })
       .catch((error) => {
@@ -228,8 +232,8 @@ class SmaEvCharger extends utils.Adapter {
    //
    // Refresh the charger parameters
    //
-   async updateChargerParameters() {
-      this.log.info("Updating charger parameters");
+   async updateChargerParameters(createFlag) {
+      createFlag && this.log.info("Initial update of charger parameters");
 
       const smaUrl = "https://" + this.config.host + "/api/v1/parameters/search/";
       // this.log.info("Fetch Parameters URL = "+smaUrl);
@@ -253,7 +257,7 @@ class SmaEvCharger extends utils.Adapter {
          this.setState("info.connection", true, true);
          
          response.data[0].values.forEach(async(element) => {
-            await this.setChargerObjectValue(element, element.value);
+            await this.setChargerObjectValue(createFlag, element, element.value);
          });
       })
       .catch((error) => {
@@ -265,45 +269,53 @@ class SmaEvCharger extends utils.Adapter {
    //
    // Create object and update state
    //
-   async setChargerObjectValue(element, value) {
+   async setChargerObjectValue(createFlag, element, value) {
       // const ts = Date.parse(element.timestamp);
       const elementObjects = element.channelId.split(".");
       const channel = elementObjects.shift().toLowerCase();
       // Remove invalid characters from object path
       const datapoint = elementObjects.join("").replace(/[^a-zA-Z0-9-_]/g, "");
       const objPath = channel + "." + datapoint;
-      const editable = element.editable || false;
-      var objDef = {
-         type: "state",
-         common: {
-            name: datapoint,
-            type: "string",
-            role: "text",
-            read: true,
-            write: editable
-         },
-         native: {}
-      };
 
-      // Store channel id for editable parameters
-      objDef.common.custom = { "channelId": element.channelId };
+      if(createFlag) {
+         const editable = element.editable || false;
+         var objDef = {
+            type: "state",
+            common: {
+               name: datapoint,
+               type: "string",
+               role: "text",
+               read: true,
+               write: editable
+            },
+            native: {}
+         };
 
-      // Store list of possible values for enumerations
-      if(element.possibleValues) {
-         objDef.common.states = element.possibleValues;
+         // Store channel id for editable parameters
+         objDef.common.custom = { "channelId": element.channelId };
+
+         // Store list of possible values for enumerations
+         if(element.possibleValues) {
+            objDef.common.states = element.possibleValues;
+         }
+
+         // Adjust parameter type (default is string)
+         if(!isNaN(value)) {
+            objDef.common.type = "number";
+            objDef.common.role = "value"
+         }
+
+         // Create object if it doesn't exist and update state
+         const obj = await this.setObjectNotExistsAsync(objPath, objDef);
+         if(!obj) {
+            this.log.info("Extending object " + objPath);
+            await this.extendObjectAsync(objPath, objDef);
+         } else {
+            this.log.info("Created object " + objPath);
+         }
       }
 
-      // Adjust parameter type (default is string)
-      if(!isNaN(value)) {
-         objDef.common.type = "number";
-         objDef.common.role = "value"
-      }
-
-      // Create object if it doesn't exist and update state
-      const obj = await this.setObjectNotExistsAsync(objPath, objDef);
-      if(!obj) {
-         await this.extendObjectAsync(objPath, objDef);
-      }
+      // Set object state
       value && this.setState(objPath, isNaN(value) ? value : Number(value), true);   
    }
 
