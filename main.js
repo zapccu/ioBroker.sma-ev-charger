@@ -254,6 +254,8 @@ class SmaEvCharger extends utils.Adapter {
             // Remove invalid characters from object path
             const datapoint = elementObjects.join("").replace(/[^a-zA-Z0-9-_]/g, "");
             const objPath = channel + "." + datapoint;
+
+            // Create object if it doesn't exist
             await this.setObjectNotExistsAsync(objPath, {
                type: "state",
                common: {

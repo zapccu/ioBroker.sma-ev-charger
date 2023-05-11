@@ -116,7 +116,7 @@
 			"type": "state",
 			"common": {
 				"role": "value",
-				"name": "Leistung Ladestation",
+				"name": "Charging power",
 				"type": "number",
             "unit": "W",
 				"read": true,
@@ -130,7 +130,7 @@
 			"type": "state",
 			"common": {
 				"role": "value",
-				"name": "Zähler Ladestation",
+				"name": "Charging counter",
 				"type": "number",
             "unit": "Wh",
 				"read": true,
@@ -144,7 +144,7 @@
 			"type": "state",
 			"common": {
 				"role": "value",
-				"name": "Leistung Netzbezug",
+				"name": "Power from grid",
 				"type": "number",
             "unit": "W",
 				"read": true,
@@ -158,7 +158,7 @@
 			"type": "state",
 			"common": {
 				"role": "value",
-				"name": "Leistung Netzeinspeisung",
+				"name": "Power to grid",
 				"type": "number",
             "unit": "W",
 				"read": true,
@@ -180,14 +180,14 @@
 			"type": "state",
 			"common": {
 				"role": "text",
-				"name": "Charging Mode",
+				"name": "Charging mode",
 				"type": "string",
 				"read": true,
 				"write": true,
             "states": {
                "4718": "Fast",
                "4719": "Optimized",
-               "4720": "Fixed",
+               "4720": "Set point",
                "4721": "Stop"
             }
          },
