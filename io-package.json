@@ -22,7 +22,7 @@
          "0.1.1": {
             "en": "Moved custom to native",
             "de": "ChannelId in native speichern"
-         },
+         }
 		},
 		"title": "SMA EV Charger",
 		"titleLang": {
