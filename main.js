@@ -300,10 +300,7 @@ class SmaEvCharger extends utils.Adapter {
                type: "string",
                role: "text",
                read: true,
-               write: editable,
-               custom: {
-                  channelId: element.channelId
-               }
+               write: editable
             },
             native: {
                channelId: element.channelId
@@ -316,12 +313,16 @@ class SmaEvCharger extends utils.Adapter {
             objDef.common.role = "value"
          }
 
+         objDef.common.custom = { "channelId": element.channelId };
+
          const obj = this.getObject(objPath);
          if(obj) {
             // Store list of possible values for enumerations. Keep existing states.
             if(element.possibleValues && !obj.common.states) {
                objDef.common.states = element.possibleValues;
             }
+            objDef.native = { "channelId": element.channelId };
+            
             // Modify/extend existing object
             await this.extendObjectAsync(objPath, objDef);
          } else {
