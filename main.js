@@ -103,8 +103,8 @@ class SmaEvCharger extends utils.Adapter {
          }, refreshInterval * 1000);
 
          // Create objects
-         await.this.updateChargerInformation(true);
-         await.this.updateChargerParameters(true);
+         await this.updateChargerInformation(true);
+         await this.updateChargerParameters(true);
 
          // Timer for updating the wallbox information
          if (this.config.infoInterval > 0) {
