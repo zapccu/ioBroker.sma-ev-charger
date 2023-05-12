@@ -1,7 +1,7 @@
 {
 	"common": {
 		"name": "sma-ev-charger",
-		"version": "0.1.3",
+		"version": "0.1.4",
 		"news": {
 			"0.0.1": {
 				"en": "initial release",
@@ -15,18 +15,22 @@
 				"pl": "Pierwsze wydanie",
 				"zh-cn": "首次出版"
 			},
-         "0.1.0": {
-            "en": "First functional release",
-            "de": "Erstes funktionales release"
-         },
-         "0.1.1": {
-            "en": "Moved custom to native",
-            "de": "ChannelId in native speichern"
-         },
-         "0.1.3": {
-            "en": "Removed some log statements",
-            "de": "Einige Protokoll Befehle entfernt"
-         }
+			"0.1.0": {
+				"en": "First functional release",
+				"de": "Erstes funktionales release"
+			},
+			"0.1.1": {
+				"en": "Moved custom to native",
+				"de": "ChannelId in native speichern"
+			},
+			"0.1.3": {
+				"en": "Removed some log statements",
+				"de": "Einige Protokoll Befehle entfernt"
+			},
+			"0.1.4": {
+				"en": "Added info.status",
+				"de": "info.status hinzugefügt"
+			}		
 		},
 		"title": "SMA EV Charger",
 		"titleLang": {
@@ -87,8 +91,8 @@
 		"host": "",
 		"username": "admin",
 		"password": "",
-      "infoInterval": 30,
-      "paramInterval": 119
+		"infoInterval": 30,
+		"paramInterval": 119
 	},
 	"objects": [],
 	"instanceObjects": [
@@ -114,6 +118,19 @@
 			"native": {}
 		},
 		{
+			"_id": "info.status",
+			"type": "state",
+			"common": {
+				"role": "indicator",
+				"name": "Action status",
+				"type": "string",
+				"read": true,
+				"write": false,
+				"def": "OK"
+			},
+			"native": {}
+		},
+		{
 			"_id": "measurement",
 			"type": "channel",
 			"common": {
@@ -128,7 +145,7 @@
 				"role": "value",
 				"name": "Charging power",
 				"type": "number",
-            "unit": "W",
+				"unit": "W",
 				"read": true,
 				"write": false,
 				"def": 0
@@ -142,7 +159,7 @@
 				"role": "value",
 				"name": "Charging counter",
 				"type": "number",
-            "unit": "Wh",
+				"unit": "Wh",
 				"read": true,
 				"write": false,
 				"def": 0
@@ -156,7 +173,7 @@
 				"role": "value",
 				"name": "Power from grid",
 				"type": "number",
-            "unit": "W",
+				"unit": "W",
 				"read": true,
 				"write": false,
 				"def": 0
@@ -170,14 +187,14 @@
 				"role": "value",
 				"name": "Power to grid",
 				"type": "number",
-            "unit": "W",
+				"unit": "W",
 				"read": true,
 				"write": false,
 				"def": 0
 			},
 			"native": {}
 		},
-      {
+		{
 			"_id": "parameter",
 			"type": "channel",
 			"common": {
@@ -194,14 +211,14 @@
 				"type": "number",
 				"read": true,
 				"write": true,
-            "states": {
-               "4718": "Fast",
-               "4719": "Optimized",
-               "4720": "Set point",
-               "4721": "Stop"
-            }
-         },
-         "native": {}
+				"states": {
+					"4718": "Fast",
+					"4719": "Optimized",
+					"4720": "Set point",
+					"4721": "Stop"
+				}
+			},
+			"native": {}
 		},
 		{
 			"_id": "parameter.ChrgAMinCha",
@@ -210,15 +227,15 @@
 				"role": "value",
 				"name": "Minimum charge current",
 				"type": "number",
-            "unit": "A",
+				"unit": "A",
 				"read": true,
 				"write": true
-         },
-         "native": {
-            "channelId": "undef"
-         }
+			},
+			"native": {
+				"channelId": "undef"
+			}
 		},
-      {
+		{
 			"_id": "setpoint",
 			"type": "channel",
 			"common": {

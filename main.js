@@ -13,19 +13,6 @@ const utils = require("@iobroker/adapter-core");
 const axios = require("axios");
 const qs = require("qs");
 
-const objAttr = {
-   "parameter.ChrgAMinCha": {
-      "unit": "A"
-   },
-   "parameter.ChrgActChaMod": {
-      "states": {
-         "4718": "Fast",
-         "4719": "Optimized",
-         "4720": "Set point",
-         "4721": "Stop"
-      }
-   }
-};
 
 class SmaEvCharger extends utils.Adapter {
 	/**
@@ -38,361 +25,340 @@ class SmaEvCharger extends utils.Adapter {
 		});
 		this.on("ready", this.onReady.bind(this));
 		this.on("stateChange", this.onStateChange.bind(this));
-		// this.on("objectChange", this.onObjectChange.bind(this));
-		// this.on("message", this.onMessage.bind(this));
 		this.on("unload", this.onUnload.bind(this));
 
-      this.session = {};
+		this.session = {};
 	}
 
-   /**
-    * Is called when databases are connected and adapter received configuration.
-    */
-   async onReady() {
-      // Initialize your adapter here
+	/**
+	 * Is called when databases are connected and adapter received configuration.
+	 */
+	async onReady() {
 
-      // Reset the connection indicator during startup
-      this.setState("info.connection", false, true);
+		// The REST client
+		this.requestClient = axios.create();
 
-		// The adapters config (in the instance object everything under the attribute "native") is accessible via
-		// this.config:
+		// Reset the connection indicator during startup
+		this.setState("info.connection", false, true);
 
-      // In order to get state updates, you need to subscribe to them. The following line adds a subscription for our variable we have created above.
-      // this.subscribeStates("connectionState");
-      // You can also add a subscription for multiple states. The following line watches all states starting with "lights."
-      // this.subscribeStates("lights.*");
-      // Or, if you really must, you can also watch all states. Don't do this if you don't need to. Otherwise this will cause a lot of unnecessary load on the system:
-      // this.subscribeStates("*");
+		// this.adapterConfig = "system.adapter." + this.name + "." + this.instance;
+		// const obj = await this.getForeignObjectAsync(this.adapterConfig);
+		// if (this.config.reset) {
+		// 	if (obj) {
+		// 		obj.native.session = {};
+		// 		await this.setForeignObjectAsync(this.adapterConfig, obj);
+		// 		this.log.info("Login Token resetted");
+		// 		this.terminate();
+		// 	}
+		// }
 
-      // examples for the checkPassword/checkGroup functions
-      // let result = await this.checkPasswordAsync("admin", "iobroker");
-      // this.log.info("check user admin pw iobroker: " + result);
+		// if (obj && obj.native.session && obj.native.session.refresh_token) {
+		// 	this.session = obj.native.session;
+		// 	this.log.info("Session loaded");
+		// 	this.log.info("Refresh session");
+		// 	await this.refreshToken(true);
+		// }
 
-      // result = await this.checkGroupAsync("admin", "admin");
-      // this.log.info("check group user admin group admin: " + result);
+		// Subscribe to changes
+		this.subscribeStates("*");
+		// this.subscribeObjects("*");
+		
+		// Initial login
+		if (!this.session.access_token) {
+			this.log.info("Initial login");
+			await this.login();
+		}
 
-      this.adapterConfig = "system.adapter." + this.name + "." + this.instance;
-      const obj = await this.getForeignObjectAsync(this.adapterConfig);
-      if (this.config.reset) {
-         if (obj) {
-            obj.native.session = {};
-            await this.setForeignObjectAsync(this.adapterConfig, obj);
-            this.log.info("Login Token resetted");
-            this.terminate();
-         }
-      }
+		if (this.session.access_token) {
+			// Login successful, setup timer functions
 
-      this.requestClient = axios.create();
+			const refreshInterval = this.session.expires_in ? this.session.expires_in : 3600;
+			this.log.info("Token refresh interval = " + refreshInterval + " seconds");
 
-      if (obj && obj.native.session && obj.native.session.refresh_token) {
-         this.session = obj.native.session;
-         this.log.info("Session loaded");
-         this.log.info("Refresh session");
-         await this.refreshToken(true);
-      }
+			// Timer for refreshing the access token
+			this.refreshTokenInterval = setInterval(async () => {
+				await this.refreshToken();
+			}, refreshInterval * 1000);
 
-      // Todo: Is this needed?
-      this.reLoginTimeout = null;
-      this.refreshTokenTimeout = null;
+			// Create objects
+			await this.updateChargerInformation(true);
+			await this.updateChargerParameters(true);
 
-      // Subscribe to changes
-      this.subscribeStates("*");
-      // this.subscribeObjects("*");
-      
-      // Initial login
-      if (!this.session.access_token) {
-         this.log.info("Initial login");
-         await this.login();
-      }
+			// Timer for updating the wallbox information
+			if (this.config.infoInterval > 0) {
+				this.updateInfoInterval = setInterval(async () => {
+					await this.updateChargerInformation(false);
+				}, this.config.infoInterval * 1000);
+			}
 
-      if (this.session.access_token) {
-         // Login successful, setup timer functions
+			// Timer for updating the wallbox configuration
+			if (this.config.paramInterval > 0) {
+				this.updateParamInterval = setInterval(async () => {
+					await this.updateChargerParameters(false);
+				}, this.config.paramInterval * 1000);
+			}
+		}
+	}
 
-         const refreshInterval = this.session.expires_in ? this.session.expires_in : 3600;
-         this.log.info("Token refresh interval = " + refreshInterval + " seconds");
+	//
+	// Login to wallbox
+	//
+	async login() {
 
-         // Timer for refreshing the access token
-         this.refreshTokenInterval = setInterval(async () => {
-            await this.refreshToken();
-         }, refreshInterval * 1000);
+		const smaUrl = "https://" + this.config.host + "/api/v1/token";
 
-         // Create objects
-         await this.updateChargerInformation(true);
-         await this.updateChargerParameters(true);
+		const data = {
+			grant_type: "password",
+			username: this.config.username,
+			password: this.config.password
+		};
 
-         // Timer for updating the wallbox information
-         if (this.config.infoInterval > 0) {
-            this.updateInfoInterval = setInterval(async () => {
-               await this.updateChargerInformation(false);
-            }, this.config.infoInterval * 1000);
-         }
+		await this.requestClient({
+			url: smaUrl,
+			method: "POST",
+			headers: {
+				 accept: "*/*"
+			},
+			data: qs.stringify(data)
+		})
+		.then((response) => {
+			this.session = response.data;
+			this.setState("info.connection", true, true);
+			this.setState("info.status", "logged in", true);
+			this.log.info(`Connected to ${this.config.host} `);
+		})
+		.catch((error) => {
+			this.setState("info.connection", false, true);
+			this.setState("info.status", "login failed", true);
+			this.log.error(error);
+			error.response && this.log.error(JSON.stringify(error.response.data));
+		});
+	}
 
-         // Timer for updating the wallbox configuration
-         if (this.config.paramInterval > 0) {
-            this.updateParamInterval = setInterval(async () => {
-               await this.updateChargerParameters(false);
-            }, this.config.paramInterval * 1000);
-         }
-      }
-   }
+	//
+	// Refresh the access token
+	//
+	async refreshToken() {
 
-   //
-   // Login to wallbox
-   //
-   async login() {
+		this.log.info("Refreshing token");
 
-      const smaUrl = "https://" + this.config.host + "/api/v1/token";
-      // this.log.info("Login URL = "+smaUrl);
+		const smaUrl = "https://" + this.config.host + "/api/v1/token";
 
-      const data = {
-         grant_type: "password",
-         username: this.config.username,
-         password: this.config.password
-      };
-      
-//      this.requestClient.interceptors.request.use(request => {
-//         this.log.info(JSON.stringify(request, null, 2))
-//         return request
-//      });
+		const data = {
+			grant_type: "refresh_token",
+			refresh_token: this.session.refresh_token
+		};      
+		await this.requestClient({
+			url: smaUrl,
+			method: "POST",
+			headers: {
+				 accept: "*/*"
+			},
+			data: qs.stringify(data)
+		})
+		.then((response) => {
+			this.session = response.data;
+			this.setState("info.connection", true, true);
+			this.setState("info.status", "token refreshed", true);
+			this.log.info(`Connected to ${this.config.host} `);
+		})
+		.catch((error) => {
+			this.setState("info.connection", false, true);
+			this.setState("info.status", "refresh token failed", true);
+			this.log.error(error);
+			error.response && this.log.error(JSON.stringify(error.response.data));
+		});
+	}
 
-      await this.requestClient({
-         url: smaUrl,
-         method: "POST",
-         headers: {
-             accept: "*/*"
-         },
-         data: qs.stringify(data)
-      })
-      .then((response) => {
-         // this.log.info(JSON.stringify(response.data));
-         this.session = response.data;
-         this.setState("info.connection", true, true);
-         this.log.info(`Connected to ${this.config.host} `);
-      })
-      .catch((error) => {
-         this.log.error(error);
-         error.response && this.log.error(JSON.stringify(error.response.data));
-      });
-   }
+	//
+	// Refresh the charger information
+	//
+	async updateChargerInformation(createFlag) {
 
-   //
-   // Refresh the access token
-   //
-   async refreshToken() {
-      this.log.info("Refreshing token");
+		createFlag && this.log.info("Initial update of charger information");
 
-      const smaUrl = "https://" + this.config.host + "/api/v1/token";
-      this.log.info("Refresh URL = "+smaUrl);
+		const smaUrl = "https://" + this.config.host + "/api/v1/measurements/live";
 
-      const data = {
-         grant_type: "refresh_token",
-         refresh_token: this.session.refresh_token
-      };      
-      await this.requestClient({
-         url: smaUrl,
-         method: "POST",
-         headers: {
-             accept: "*/*"
-         },
-         data: qs.stringify(data)
-      })
-      .then((response) => {
-         this.log.info(JSON.stringify(response.data));
-         this.session = response.data;
-         this.setState("info.connection", true, true);
-         this.log.info(`Connected to ${this.config.host} `);
-      })
-      .catch((error) => {
-         this.log.error(error);
-         error.response && this.log.error(JSON.stringify(error.response.data));
-      });
-   }
+		const body = [
+			{
+				"componentId": "IGULD:SELF"
+			}
+		];
+	
+		await this.requestClient({
+			url: smaUrl,
+			method: "POST",
+			headers: {
+				"Authorization": "Bearer " + this.session.access_token, 
+				"Accept": "*/*",
+				"Content-Type": "application/json"
+			},
+			data: JSON.stringify(body)
+		})
+		.then((response) => {
+			this.setState("info.connection", true, true);
+			this.setState("info.status", "OK", true);
+			
+			response.data.forEach(async(element) => {
+				await this.setChargerObjectValue(createFlag, element, element.values[0].value);
+			});
+		})
+		.catch((error) => {
+			this.setState("info.connection", false, true);
+			this.setState("info.status", "update failed", true);
+			this.log.error(error);
+			error.response && this.log.error(JSON.stringify(error.response.data));
+		});
+	}
 
-   //
-   // Refresh the charger information
-   //
-   async updateChargerInformation(createFlag) {
-      createFlag && this.log.info("Initial update of charger information");
+	//
+	// Refresh the charger parameters
+	//
+	async updateChargerParameters(createFlag) {
 
-      const smaUrl = "https://" + this.config.host + "/api/v1/measurements/live";
-      // this.log.info("Fetch Info URL = "+smaUrl);
+		createFlag && this.log.info("Initial update of charger parameters");
 
-      const body = [ {"componentId": "IGULD:SELF"} ];
-   
-      await this.requestClient({
-         url: smaUrl,
-         method: "POST",
-         headers: {
-            "Authorization": "Bearer " + this.session.access_token, 
-            "Accept": "*/*",
-            "Content-Type": "application/json"
-         },
-         data: JSON.stringify(body)
-      })
-      .then((response) => {
-         // this.log.info(JSON.stringify(response.data));
-         this.setState("info.connection", true, true);
-         
-         response.data.forEach(async(element) => {
-            await this.setChargerObjectValue(createFlag, element, element.values[0].value);
-         });
-      })
-      .catch((error) => {
-         this.log.error(error);
-         error.response && this.log.error(JSON.stringify(error.response.data));
-      });
-   }
+		const smaUrl = "https://" + this.config.host + "/api/v1/parameters/search/";
 
-   //
-   // Refresh the charger parameters
-   //
-   async updateChargerParameters(createFlag) {
-      createFlag && this.log.info("Initial update of charger parameters");
+		const body = {
+			"queryItems": [ { "componentId": "IGULD:SELF" } ]
+		}
+	
+		await this.requestClient({
+			url: smaUrl,
+			method: "POST",
+			headers: {
+				"Authorization": "Bearer " + this.session.access_token, 
+				"Accept": "*/*",
+				"Content-Type": "application/json"
+			},
+			data: JSON.stringify(body)
+		})
+		.then((response) => {
+			this.setState("info.connection", true, true);
+			this.setState("info.status", "OK", true);
+			
+			response.data[0].values.forEach(async(element) => {
+				await this.setChargerObjectValue(createFlag, element, element.value);
+			});
+		})
+		.catch((error) => {
+			this.setState("info.connection", false, true);
+			this.setState("info.status", "update failed", true);
+			this.log.error(error);
+			error.response && this.log.error(JSON.stringify(error.response.data));
+		});
+	}
 
-      const smaUrl = "https://" + this.config.host + "/api/v1/parameters/search/";
-      // this.log.info("Fetch Parameters URL = "+smaUrl);
+	//
+	// Create object and update state
+	//
+	async setChargerObjectValue(createFlag, element, value) {
 
-      const body = {
-         "queryItems": [ { "componentId": "IGULD:SELF" } ]
-      }
-   
-      await this.requestClient({
-         url: smaUrl,
-         method: "POST",
-         headers: {
-            "Authorization": "Bearer " + this.session.access_token, 
-            "Accept": "*/*",
-            "Content-Type": "application/json"
-         },
-         data: JSON.stringify(body)
-      })
-      .then((response) => {
-         // this.log.info(JSON.stringify(response.data));
-         this.setState("info.connection", true, true);
-         
-         response.data[0].values.forEach(async(element) => {
-            await this.setChargerObjectValue(createFlag, element, element.value);
-         });
-      })
-      .catch((error) => {
-         this.log.error(error);
-         error.response && this.log.error(JSON.stringify(error.response.data));
-      });
-   }
+		const elementObjects = element.channelId.split(".");
+		const channel = elementObjects.shift().toLowerCase();
 
-   //
-   // Create object and update state
-   //
-   async setChargerObjectValue(createFlag, element, value) {
-      // const ts = Date.parse(element.timestamp);
-      const elementObjects = element.channelId.split(".");
-      const channel = elementObjects.shift().toLowerCase();
-      // Remove invalid characters from object path
-      const datapoint = elementObjects.join("").replace(/[^a-zA-Z0-9-_]/g, "");
-      const objPath = channel + "." + datapoint;
+		// Remove invalid characters from datapoint name and build object path
+		const datapoint = elementObjects.join("").replace(/[^a-zA-Z0-9-_]/g, "");
+		const objPath = channel + "." + datapoint;
 
-      if(createFlag) {
-         const editable = element.editable || false;
-         var objDef = {
-            type: "state",
-            common: {
-               name: datapoint,
-               type: "string",
-               role: "text",
-               read: true,
-               write: editable
-            },
-            native: {
-               channelId: element.channelId
-            }
-         };
+		if(createFlag) {
+			const editable = element.editable || false;
+			var objDef = {
+				type: "state",
+				common: {
+					name: datapoint,
+					type: "string",
+					role: "text",
+					read: true,
+					write: editable
+				},
+				native: {
+					channelId: element.channelId
+				}
+			};
 
-         // Adjust parameter type (default is string)
-         if(!isNaN(value)) {
-            objDef.common.type = "number";
-            objDef.common.role = "value"
-         }
+			// Adjust parameter type (default is string)
+			if(!isNaN(value)) {
+				objDef.common.type = "number";
+				objDef.common.role = "value"
+			}
 
-         const obj = await this.getObjectAsync(objPath);
-         if(obj) {
-            // Store list of possible values for enumerations. Keep existing states.
-            if(element.possibleValues && !obj.common.states) {
-               objDef.common.states = element.possibleValues;
-            }
-            objDef.native = { channelId: element.channelId };
+			const obj = await this.getObjectAsync(objPath);
+			if(obj) {
+				// Store list of possible values for enumerations. Keep existing states.
+				if(element.possibleValues && !obj.common.states) {
+					objDef.common.states = element.possibleValues;
+				}
+				objDef.native = { channelId: element.channelId };
 
-            // Modify/extend existing object
-            await this.extendObjectAsync(objPath, objDef);
-         } else {
-            // Store list of possible values for enumerations
-            if(element.possibleValues) {
-               objDef.common.states = element.possibleValues;
-            }
-            // Create new object
-            await this.setObjectNotExistsAsync(objPath, objDef);
-         }
-      }
+				// Modify/extend existing object
+				await this.extendObjectAsync(objPath, objDef);
+			} else {
+				// Store list of possible values for enumerations
+				if(element.possibleValues) {
+					objDef.common.states = element.possibleValues;
+				}
+				// Create new object
+				await this.setObjectNotExistsAsync(objPath, objDef);
+			}
+		}
 
-      // Set object state
-      value && this.setState(objPath, isNaN(value) ? value : Number(value), true);   
-   }
+		// Set object state
+		value && this.setState(objPath, isNaN(value) ? value : Number(value), true);   
+	}
 
-   //
-   // Set charger parameter
-   //
-   async setChargerParameter(smaChannelId, newValue) {
-      const smaUrl = "https://" + this.config.host + "/api/v1/parameters/IGULD:SELF";
+	//
+	// Set charger parameter
+	//
+	async setChargerParameter(smaChannelId, newValue) {
 
-      const body = {
-         "values": [
-            {
-               "channelId": smaChannelId,
-               "value": newValue
-            }
-         ]
-      };
+		const smaUrl = "https://" + this.config.host + "/api/v1/parameters/IGULD:SELF";
 
-      // this.log.info("Body = " + JSON.stringify(body));
+		const body = {
+			"values": [
+				{
+					"channelId": smaChannelId,
+					"value": newValue
+				}
+			]
+		};
 
-      await this.requestClient({
-         url: smaUrl,
-         method: "PUT",
-         headers: {
-            "Authorization": "Bearer " + this.session.access_token, 
-            "Accept": "*/*",
-            "Content-Type": "application/json"
-         },
-         data: JSON.stringify(body)
-      })
-      .then((response) => {
-         // this.log.info(JSON.stringify(response.data));
-         this.setState("info.connection", true, true);
-      })
-      .catch((error) => {
-         this.log.error(error);
-         error.response && this.log.error(JSON.stringify(error.response.data));
-      });
-   }
+		await this.requestClient({
+			url: smaUrl,
+			method: "PUT",
+			headers: {
+				"Authorization": "Bearer " + this.session.access_token, 
+				"Accept": "*/*",
+				"Content-Type": "application/json"
+			},
+			data: JSON.stringify(body)
+		})
+		.then((response) => {
+			this.setState("info.connection", true, true);
+			this.setState("info.status", "OK", true);
+		})
+		.catch((error) => {
+			this.setState("info.connection", false, true);
+			this.setState("info.status", "set parameter failed");
+			this.log.error(error);
+			error.response && this.log.error(JSON.stringify(error.response.data));
+		});
+	}
 
-   /**
-    * Is called when adapter shuts down - callback has to be called under any circumstances!
-    * @param {() => void} callback
-    */
-   onUnload(callback) {
+	/**
+	 * Is called when adapter shuts down - callback has to be called under any circumstances!
+	 * @param {() => void} callback
+	 */
+	onUnload(callback) {
 		try {
-         this.log.info("Cleaning up");
+			this.log.info("Cleaning up");
 
-         this.setState("info.connection", false, true);
-         
-         this.updateInfoInterval && this.clearInterval(this.updateInfoInterval);
-         this.updateParamInterval && this.clearInterval(this.updateParamInterval);
-         this.refreshTokenInterval && this.clearInterval(this.refreshTokenInterval);
-
-			// Here you must clear all timeouts or intervals that may still be active
-			// clearTimeout(timeout1);
-			// clearTimeout(timeout2);
-			// ...
-			// clearInterval(interval1);
+			this.setState("info.connection", false, true);
+			
+			this.updateInfoInterval && this.clearInterval(this.updateInfoInterval);
+			this.updateParamInterval && this.clearInterval(this.updateParamInterval);
+			this.refreshTokenInterval && this.clearInterval(this.refreshTokenInterval);
 
 			callback();
 		} catch (e) {
@@ -400,80 +366,45 @@ class SmaEvCharger extends utils.Adapter {
 		}
 	}
 
-	// If you need to react to object changes, uncomment the following block and the corresponding line in the constructor.
-	// You also need to subscribe to the objects with `this.subscribeObjects`, similar to `this.subscribeStates`.
 	/**
-	 * Is called if a subscribed object changes
+	 * Is called if a subscribed state changes
 	 * @param {string} id
-	 * @param {ioBroker.Object | null | undefined} obj
+	 * @param {ioBroker.State | null | undefined} state
 	 */
-	// onObjectChange(id, obj) {
-	// 	if (obj) {
-	// 		// The object was changed
-	// 		this.log.info(`on object ${id} changed: ${JSON.stringify(obj)}`);
-	// 	} else {
-	// 		// The object was deleted
-	// 		this.log.info(`on object ${id} deleted`);
-	// 	}
-	// }
+	onStateChange(id, state) {
+		if (state) {
+			// The state changed
+			if(state.ack === false) {
+				// The state was changed by the user. Update charger parameter
+				this.getObject(id, (err,obj) => {
+					if(err) {
+						this.log.error("Object not found " + id);
+					} else {
+						// this.log.info("obj = " + JSON.stringify(obj));
+						if(obj.native.channelId) {
+							this.log.info("Set charger parameter for channelId " + obj.native.channelId + " to " + state.val);
+							this.setChargerParameter(obj.native.channelId, state.val);
+						} else {
+							this.log.error("Channel id not found in object " + id + " object=" + JSON.stringify(obj));
+						}
+					}
+				});
+			}
+		} else {
+			// The state was deleted
+			// this.log.info(`on state ${id} deleted`);
+		}
+	}
 
-   /**
-    * Is called if a subscribed state changes
-    * @param {string} id
-    * @param {ioBroker.State | null | undefined} state
-    */
-   onStateChange(id, state) {
-      if (state) {
-         // The state was changed
-         // this.log.info(`on state ${id} changed: ${state.val} (ack = ${state.ack})`);
-         if(state.ack === false) {
-            // The state was changed by the user. Update charger parameter
-            this.getObject(id, (err,obj) => {
-               if(err) {
-                  this.log.error("Object not found " + id);
-               } else {
-                  // this.log.info("obj = " + JSON.stringify(obj));
-                  if(obj.native.channelId) {
-                     this.log.info("ack=false => setChargerParameter for " + id + " channelId=" + obj.native.channelId + " to " + state.val);
-                     this.setChargerParameter(obj.native.channelId, state.val);
-                  } else {
-                     this.log.error("Channel id not found in object " + id + " object=" + JSON.stringify(obj));
-                  }
-               }
-            });
-         }
-      } else {
-         // The state was deleted
-         // this.log.info(`on state ${id} deleted`);
-      }
-   }
-
-   // If you need to accept messages in your adapter, uncomment the following block and the corresponding line in the constructor.
-   // /**
-   //  * Some message was sent to this instance over message box. Used by email, pushover, text2speech, ...
-   //  * Using this method requires "common.messagebox" property to be set to true in io-package.json
-   //  * @param {ioBroker.Message} obj
-   //  */
-   // onMessage(obj) {
-   // 	if (typeof obj === "object" && obj.message) {
-   // 		if (obj.command === "send") {
-   // 			// e.g. send email or pushover or whatever
-   // 			this.log.info("send command");
-
-   // 			// Send response in callback if required
-   // 			if (obj.callback) this.sendTo(obj.from, obj.command, "Message received", obj.callback);
-   // 		}
-   // 	}
-   // }
 }
 
 if (require.main !== module) {
-   // Export the constructor in compact mode
-   /**
-    * @param {Partial<utils.AdapterOptions>} [options={}]
-    */
-   module.exports = (options) => new SmaEvCharger(options);
+	// Export the constructor in compact mode
+	/**
+	 * @param {Partial<utils.AdapterOptions>} [options={}]
+	 */
+	module.exports = (options) => new SmaEvCharger(options);
 } else {
-   // otherwise start the instance directly
-   new SmaEvCharger();
+	// otherwise start the instance directly
+	new SmaEvCharger();
 }
