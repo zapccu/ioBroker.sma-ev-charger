@@ -288,12 +288,13 @@ class SmaEvCharger extends utils.Adapter {
                read: true,
                write: editable
             },
-            native: {}
+            native: {
+               channelId: element.channelId;
+            }
          };
 
          // Store channel id for editable parameters
-         objDef.native.channelId = element.channelId;
-
+         // objDef.native.channelId = element.channelId;
 
          // Adjust parameter type (default is string)
          if(!isNaN(value)) {
@@ -419,8 +420,8 @@ class SmaEvCharger extends utils.Adapter {
                      this.log.info("ack=false => setChargerParameter for " + id + " channelId=" + obj.native.channelId + " to " + state);
                      // this.setChargerParameter(obj.common.custom.channelId, state);   
                   } else {
-                     this.log.error("Channel id not found in object " + id + " object=" . JSON.stringify(obj));
-                  }   
+                     this.log.error("Channel id not found in object " + id + " object=" + JSON.stringify(obj));
+                  }
                }
             });
          }
