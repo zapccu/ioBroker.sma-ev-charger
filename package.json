@@ -1,6 +1,6 @@
 {
   "name": "iobroker.sma-ev-charger",
-  "version": "0.0.8",
+  "version": "0.1.4",
   "description": "Adapter for SMA EV Charger wallbox",
   "author": {
     "name": "zap",
