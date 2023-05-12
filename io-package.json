@@ -196,7 +196,8 @@
                "4720": "Set point",
                "4721": "Stop"
             }
-         }
+         },
+         "native": {}
 		},
 		{
 			"_id": "parameter.ChrgAMinCha",
@@ -208,6 +209,9 @@
             "unit": "A",
 				"read": true,
 				"write": true
+         },
+         "native": {
+            "channelId": "undef"
          }
 		},
       {

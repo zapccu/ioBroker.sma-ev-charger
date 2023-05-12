@@ -13,6 +13,20 @@ const utils = require("@iobroker/adapter-core");
 const axios = require("axios");
 const qs = require("qs");
 
+const objAttr = {
+   "parameter.ChrgAMinCha": {
+      "unit": "A"
+   },
+   "parameter.ChrgActChaMod": {
+      "states": {
+         "4718": "Fast",
+         "4719": "Optimized",
+         "4720": "Set point",
+         "4721": "Stop"
+      }
+   }
+};
+
 class SmaEvCharger extends utils.Adapter {
 	/**
 	 * @param {Partial<utils.AdapterOptions>} [options={}]
@@ -286,15 +300,15 @@ class SmaEvCharger extends utils.Adapter {
                type: "string",
                role: "text",
                read: true,
-               write: editable
+               write: editable,
+               custom: {
+                  channelId: element.channelId
+               }
             },
             native: {
                channelId: element.channelId
             }
          };
-
-         // Store channel id for editable parameters
-         // objDef.native.channelId = element.channelId;
 
          // Adjust parameter type (default is string)
          if(!isNaN(value)) {
@@ -416,8 +430,8 @@ class SmaEvCharger extends utils.Adapter {
                   this.log.error("Object not found " + id);
                } else {
                   this.log.info("obj = " + JSON.stringify(obj));
-                  if(obj.native.channelId) {
-                     this.log.info("ack=false => setChargerParameter for " + id + " channelId=" + obj.native.channelId + " to " + state);
+                  if(obj.common.custom && obj.common.custom.channelId) {
+                     this.log.info("ack=false => setChargerParameter for " + id + " channelId=" + obj.common.custom.channelId + " to " + state);
                      // this.setChargerParameter(obj.common.custom.channelId, state);   
                   } else {
                      this.log.error("Channel id not found in object " + id + " object=" + JSON.stringify(obj));
