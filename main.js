@@ -320,11 +320,9 @@ class SmaEvCharger extends utils.Adapter {
                objDef.common.states = element.possibleValues;
             }
             objDef.native = { channelId: element.channelId };
-            obj.native = { channelId: element.channelId };
 
             // Modify/extend existing object
             await this.extendObjectAsync(objPath, objDef);
-            // await this.setObjectAsync(objPath, obj);
          } else {
             // Store list of possible values for enumerations
             if(element.possibleValues) {
@@ -431,9 +429,9 @@ class SmaEvCharger extends utils.Adapter {
                   this.log.error("Object not found " + id);
                } else {
                   this.log.info("obj = " + JSON.stringify(obj));
-                  if(obj.common.custom && obj.common.custom.channelId) {
-                     this.log.info("ack=false => setChargerParameter for " + id + " channelId=" + obj.common.custom.channelId + " to " + state);
-                     // this.setChargerParameter(obj.common.custom.channelId, state);   
+                  if(obj.native.channelId) {
+                     this.log.info("ack=false => setChargerParameter for " + id + " channelId=" + obj.native.channelId + " to " + state);
+                     // this.setChargerParameter(obj.native.channelId, state);   
                   } else {
                      this.log.error("Channel id not found in object " + id + " object=" + JSON.stringify(obj));
                   }
