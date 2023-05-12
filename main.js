@@ -434,7 +434,7 @@ class SmaEvCharger extends utils.Adapter {
                } else {
                   // this.log.info("obj = " + JSON.stringify(obj));
                   if(obj.native.channelId) {
-                     this.log.info("ack=false => setChargerParameter for " + id + " channelId=" + obj.native.channelId + " to " + state.val));
+                     this.log.info("ack=false => setChargerParameter for " + id + " channelId=" + obj.native.channelId + " to " + state.val);
                      this.setChargerParameter(obj.native.channelId, state.val);
                   } else {
                      this.log.error("Channel id not found in object " + id + " object=" + JSON.stringify(obj));
