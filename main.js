@@ -148,7 +148,7 @@ class SmaEvCharger extends utils.Adapter {
 		const data = {
 			grant_type: "refresh_token",
 			refresh_token: this.session.refresh_token
-		};      
+		};
 		await this.requestClient({
 			url: smaUrl,
 			method: "POST",
@@ -199,7 +199,7 @@ class SmaEvCharger extends utils.Adapter {
 			.then((response) => {
 				this.setState("info.connection", true, true);
 				this.setState("info.status", "OK", true);
-				
+
 				response.data.forEach(async(element) => {
 					await this.setChargerObjectValue(createFlag, element, element.values[0].value);
 				});
@@ -223,13 +223,13 @@ class SmaEvCharger extends utils.Adapter {
 
 		const body = {
 			"queryItems": [ { "componentId": "IGULD:SELF" } ]
-		}
-	
+		};
+
 		await this.requestClient({
 			url: smaUrl,
 			method: "POST",
 			headers: {
-				"Authorization": "Bearer " + this.session.access_token, 
+				"Authorization": "Bearer " + this.session.access_token,
 				"Accept": "*/*",
 				"Content-Type": "application/json"
 			},
@@ -238,7 +238,7 @@ class SmaEvCharger extends utils.Adapter {
 			.then((response) => {
 				this.setState("info.connection", true, true);
 				this.setState("info.status", "OK", true);
-				
+
 				response.data[0].values.forEach(async(element) => {
 					await this.setChargerObjectValue(createFlag, element, element.value);
 				});
@@ -335,16 +335,17 @@ class SmaEvCharger extends utils.Adapter {
 			},
 			data: JSON.stringify(body)
 		})
-		.then((response) => {
-			this.setState("info.connection", true, true);
-			this.setState("info.status", "OK", true);
-		})
-		.catch((error) => {
-			this.setState("info.connection", false, true);
-			this.setState("info.status", "set parameter failed", true);
-			this.log.error(error);
-			error.response && this.log.error(JSON.stringify(error.response.data));
-		});
+			.then((response) => {
+				this.setState("info.connection", true, true);
+				this.setState("info.status", "OK", true);
+				this.log.info(response.statusText);
+			})
+			.catch((error) => {
+				this.setState("info.connection", false, true);
+				this.setState("info.status", "set parameter failed", true);
+				this.log.error(error);
+				error.response && this.log.error(JSON.stringify(error.response.data));
+			});
 	}
 
 	/**
