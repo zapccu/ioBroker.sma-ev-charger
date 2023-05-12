@@ -292,7 +292,7 @@ class SmaEvCharger extends utils.Adapter {
          };
 
          // Store channel id for editable parameters
-         objDef.common.custom = { "channelId": element.channelId };
+         objDef.native.channelId = element.channelId;
 
          // Store list of possible values for enumerations
          if(element.possibleValues) {
@@ -411,12 +411,12 @@ class SmaEvCharger extends utils.Adapter {
                   this.log.error("Object not found " + id);
                } else {
                   this.log.info("obj = " + JSON.stringify(obj));
-                  // if(obj.common.custom && obj.common.custom.channelId) {
-                     // this.log.info("ack=false => setChargerParameter for id " + id + " channelId=" + obj.common.custom.channelId);
+                  if(obj.native.channelId) {
+                     this.log.info("ack=false => setChargerParameter for " + id + " channelId=" + obj.native.channelId + " to " + state);
                      // this.setChargerParameter(obj.common.custom.channelId, state);   
-                  // } else {
-                     // this.log.info("Channel id not found in object " + id + " object=" . JSON.stringify(obj));
-                  // }   
+                  } else {
+                     this.log.error("Channel id not found in object " + id + " object=" . JSON.stringify(obj));
+                  }   
                }
             });
          }
@@ -426,32 +426,32 @@ class SmaEvCharger extends utils.Adapter {
       }
    }
 
-	// If you need to accept messages in your adapter, uncomment the following block and the corresponding line in the constructor.
-	// /**
-	//  * Some message was sent to this instance over message box. Used by email, pushover, text2speech, ...
-	//  * Using this method requires "common.messagebox" property to be set to true in io-package.json
-	//  * @param {ioBroker.Message} obj
-	//  */
-	// onMessage(obj) {
-	// 	if (typeof obj === "object" && obj.message) {
-	// 		if (obj.command === "send") {
-	// 			// e.g. send email or pushover or whatever
-	// 			this.log.info("send command");
+   // If you need to accept messages in your adapter, uncomment the following block and the corresponding line in the constructor.
+   // /**
+   //  * Some message was sent to this instance over message box. Used by email, pushover, text2speech, ...
+   //  * Using this method requires "common.messagebox" property to be set to true in io-package.json
+   //  * @param {ioBroker.Message} obj
+   //  */
+   // onMessage(obj) {
+   // 	if (typeof obj === "object" && obj.message) {
+   // 		if (obj.command === "send") {
+   // 			// e.g. send email or pushover or whatever
+   // 			this.log.info("send command");
 
-	// 			// Send response in callback if required
-	// 			if (obj.callback) this.sendTo(obj.from, obj.command, "Message received", obj.callback);
-	// 		}
-	// 	}
-	// }
+   // 			// Send response in callback if required
+   // 			if (obj.callback) this.sendTo(obj.from, obj.command, "Message received", obj.callback);
+   // 		}
+   // 	}
+   // }
 }
 
 if (require.main !== module) {
-	// Export the constructor in compact mode
-	/**
-	 * @param {Partial<utils.AdapterOptions>} [options={}]
-	 */
-	module.exports = (options) => new SmaEvCharger(options);
+   // Export the constructor in compact mode
+   /**
+    * @param {Partial<utils.AdapterOptions>} [options={}]
+    */
+   module.exports = (options) => new SmaEvCharger(options);
 } else {
-	// otherwise start the instance directly
-	new SmaEvCharger();
+   // otherwise start the instance directly
+   new SmaEvCharger();
 }

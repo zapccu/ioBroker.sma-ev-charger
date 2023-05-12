@@ -1,7 +1,7 @@
 {
 	"common": {
 		"name": "sma-ev-charger",
-		"version": "0.1.0",
+		"version": "0.1.1",
 		"news": {
 			"0.0.1": {
 				"en": "initial release",
@@ -18,7 +18,11 @@
          "0.1.0": {
             "en": "First functional release",
             "de": "Erstes funktionales release"
-         }
+         },
+         "0.1.1": {
+            "en": "Moved custom to native",
+            "de": "ChannelId in native speichern"
+         },
 		},
 		"title": "SMA EV Charger",
 		"titleLang": {
