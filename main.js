@@ -289,7 +289,7 @@ class SmaEvCharger extends utils.Adapter {
                write: editable
             },
             native: {
-               channelId: element.channelId;
+               channelId: element.channelId
             }
          };
 
