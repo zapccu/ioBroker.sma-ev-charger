@@ -265,7 +265,7 @@ class SmaEvCharger extends utils.Adapter {
 
 		if(createFlag) {
 			const editable = element.editable || false;
-			let objDef = {
+			const objDef = {
 				type: "state",
 				common: {
 					name: datapoint,
