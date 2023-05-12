@@ -294,10 +294,6 @@ class SmaEvCharger extends utils.Adapter {
          // Store channel id for editable parameters
          objDef.native.channelId = element.channelId;
 
-         // Store list of possible values for enumerations
-         if(element.possibleValues) {
-            objDef.common.states = element.possibleValues;
-         }
 
          // Adjust parameter type (default is string)
          if(!isNaN(value)) {
@@ -305,13 +301,21 @@ class SmaEvCharger extends utils.Adapter {
             objDef.common.role = "value"
          }
 
-         // Create object if it doesn't exist and update state
-         const obj = await this.setObjectNotExistsAsync(objPath, objDef);
-         if(!obj) {
-            this.log.info("Extending object " + objPath);
+         const obj = getObject(objPath);
+         if(obj) {
+            // Store list of possible values for enumerations. Keep existing states.
+            if(element.possibleValues && !obj.common.states) {
+               objDef.common.states = element.possibleValues;
+            }
+            // Modify/extend existing object
             await this.extendObjectAsync(objPath, objDef);
          } else {
-            this.log.info("Created object " + objPath);
+            // Store list of possible values for enumerations
+            if(element.possibleValues) {
+               objDef.common.states = element.possibleValues;
+            }
+            // Create new object
+            await this.setObjectNotExistsAsync(objPath, objDef);
          }
       }
 
