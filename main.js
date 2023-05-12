@@ -265,7 +265,7 @@ class SmaEvCharger extends utils.Adapter {
 
 		if(createFlag) {
 			const editable = element.editable || false;
-			var objDef = {
+			let objDef = {
 				type: "state",
 				common: {
 					name: datapoint,
@@ -282,7 +282,7 @@ class SmaEvCharger extends utils.Adapter {
 			// Adjust parameter type (default is string)
 			if(!isNaN(value)) {
 				objDef.common.type = "number";
-				objDef.common.role = "value"
+				objDef.common.role = "value";
 			}
 
 			const obj = await this.getObjectAsync(objPath);
@@ -306,7 +306,7 @@ class SmaEvCharger extends utils.Adapter {
 		}
 
 		// Set object state
-		value && this.setState(objPath, isNaN(value) ? value : Number(value), true);   
+		value && this.setState(objPath, isNaN(value) ? value : Number(value), true);
 	}
 
 	//
@@ -329,7 +329,7 @@ class SmaEvCharger extends utils.Adapter {
 			url: smaUrl,
 			method: "PUT",
 			headers: {
-				"Authorization": "Bearer " + this.session.access_token, 
+				"Authorization": "Bearer " + this.session.access_token,
 				"Accept": "*/*",
 				"Content-Type": "application/json"
 			},
@@ -357,7 +357,7 @@ class SmaEvCharger extends utils.Adapter {
 			this.log.info("Cleaning up");
 
 			this.setState("info.connection", false, true);
-			
+
 			this.updateInfoInterval && this.clearInterval(this.updateInfoInterval);
 			this.updateParamInterval && this.clearInterval(this.updateParamInterval);
 			this.refreshTokenInterval && this.clearInterval(this.refreshTokenInterval);
