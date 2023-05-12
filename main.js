@@ -352,6 +352,8 @@ class SmaEvCharger extends utils.Adapter {
          ]
       };
 
+      this.log.info("Body = " + JSON.stringify(body));
+
       await this.requestClient({
          url: smaUrl,
          method: "PUT",
