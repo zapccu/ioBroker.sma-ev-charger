@@ -23,6 +23,7 @@ class SmaEvCharger extends utils.Adapter {
 			...options,
 			name: "sma-ev-charger",
 		});
+
 		this.on("ready", this.onReady.bind(this));
 		this.on("stateChange", this.onStateChange.bind(this));
 		this.on("unload", this.onUnload.bind(this));
@@ -340,7 +341,7 @@ class SmaEvCharger extends utils.Adapter {
 		})
 		.catch((error) => {
 			this.setState("info.connection", false, true);
-			this.setState("info.status", "set parameter failed");
+			this.setState("info.status", "set parameter failed", true);
 			this.log.error(error);
 			error.response && this.log.error(JSON.stringify(error.response.data));
 		});
@@ -385,6 +386,7 @@ class SmaEvCharger extends utils.Adapter {
 							this.log.info("Set charger parameter for channelId " + obj.native.channelId + " to " + state.val);
 							this.setChargerParameter(obj.native.channelId, state.val);
 						} else {
+							this.setState("info.status", "set parameter failed", true);
 							this.log.error("Channel id not found in object " + id + " object=" + JSON.stringify(obj));
 						}
 					}
