@@ -301,7 +301,7 @@ class SmaEvCharger extends utils.Adapter {
             objDef.common.role = "value"
          }
 
-         const obj = getObject(objPath);
+         const obj = this.getObject(objPath);
          if(obj) {
             // Store list of possible values for enumerations. Keep existing states.
             if(element.possibleValues && !obj.common.states) {
