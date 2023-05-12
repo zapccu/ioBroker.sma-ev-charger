@@ -220,7 +220,7 @@ class SmaEvCharger extends utils.Adapter {
          this.setState("info.connection", true, true);
          
          response.data.forEach(async(element) => {
-            await this.setChargerObjectValue(createFlag, element, element.values[0].value;);
+            await this.setChargerObjectValue(createFlag, element, element.values[0].value);
          });
       })
       .catch((error) => {
