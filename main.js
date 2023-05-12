@@ -315,14 +315,14 @@ class SmaEvCharger extends utils.Adapter {
 
          objDef.common.custom = { "channelId": element.channelId };
 
-         const obj = this.getObject(objPath);
+         const obj = await this.getObjectAsync(objPath);
          if(obj) {
             // Store list of possible values for enumerations. Keep existing states.
             if(element.possibleValues && !obj.common.states) {
                objDef.common.states = element.possibleValues;
             }
             objDef.native = { "channelId": element.channelId };
-            obj.native = { "channelId": element.channelId };
+            obj.native = { channelId: element.channelId };
 
             // Modify/extend existing object
             await this.extendObjectAsync(objPath, objDef);
