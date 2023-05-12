@@ -19,29 +19,6 @@ Adapter for SMA EV Charger wallbox
 Status information and parameters are fetched periodically from charger. Intervals for status information and parameters can be configured individually. Set interval to 0 to deactivate automatic updates.
 
 
-## Developer manual
-This section is intended for the developer. It can be deleted later.
-
-### Best Practices
-We've collected some [best practices](https://github.com/ioBroker/ioBroker.repositories#development-and-coding-best-practices) regarding ioBroker development and coding in general. If you're new to ioBroker or Node.js, you should
-check them out. If you're already experienced, you should also take a look at them - you might learn something new :)
-
-
-### Publishing the adapter
-Using GitHub Actions, you can enable automatic releases on npm whenever you push a new git tag that matches the form 
-`v<major>.<minor>.<patch>`. We **strongly recommend** that you do. The necessary steps are described in `.github/workflows/test-and-release.yml`.
-
-Since you installed the release script, you can create a new
-release simply by calling:
-```bash
-npm run release
-```
-Additional command line options for the release script are explained in the
-[release-script documentation](https://github.com/AlCalzone/release-script#command-line).
-
-To get your adapter released in ioBroker, please refer to the documentation 
-of [ioBroker.repositories](https://github.com/ioBroker/ioBroker.repositories#requirements-for-adapter-to-get-added-to-the-latest-repository).
-
 
 ## Changelog
 <!--
@@ -51,6 +28,11 @@ of [ioBroker.repositories](https://github.com/ioBroker/ioBroker.repositories#req
 
 ### **WORK IN PROGRESS**
 * (zapccu) initial release
+
+## Credits
+
+Many thanks to SMA for providing product images from SMA EV Charger.
+
 
 ## License
 MIT License

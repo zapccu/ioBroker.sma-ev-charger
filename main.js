@@ -1,6 +1,6 @@
 // @ts-nocheck
 "use strict";
-process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
+process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
 
 /*
  * Created with @iobroker/create-adapter v2.3.0
@@ -62,7 +62,7 @@ class SmaEvCharger extends utils.Adapter {
 		// Subscribe to changes
 		this.subscribeStates("*");
 		// this.subscribeObjects("*");
-		
+
 		// Initial login
 		if (!this.session.access_token) {
 			this.log.info("Initial login");
@@ -117,22 +117,22 @@ class SmaEvCharger extends utils.Adapter {
 			url: smaUrl,
 			method: "POST",
 			headers: {
-				 accept: "*/*"
+				accept: "*/*"
 			},
 			data: qs.stringify(data)
 		})
-		.then((response) => {
-			this.session = response.data;
-			this.setState("info.connection", true, true);
-			this.setState("info.status", "logged in", true);
-			this.log.info(`Connected to ${this.config.host} `);
-		})
-		.catch((error) => {
-			this.setState("info.connection", false, true);
-			this.setState("info.status", "login failed", true);
-			this.log.error(error);
-			error.response && this.log.error(JSON.stringify(error.response.data));
-		});
+			.then((response) => {
+				this.session = response.data;
+				this.setState("info.connection", true, true);
+				this.setState("info.status", "logged in", true);
+				this.log.info(`Connected to ${this.config.host} `);
+			})
+			.catch((error) => {
+				this.setState("info.connection", false, true);
+				this.setState("info.status", "login failed", true);
+				this.log.error(error);
+				error.response && this.log.error(JSON.stringify(error.response.data));
+			});
 	}
 
 	//
@@ -152,22 +152,22 @@ class SmaEvCharger extends utils.Adapter {
 			url: smaUrl,
 			method: "POST",
 			headers: {
-				 accept: "*/*"
+				accept: "*/*"
 			},
 			data: qs.stringify(data)
 		})
-		.then((response) => {
-			this.session = response.data;
-			this.setState("info.connection", true, true);
-			this.setState("info.status", "token refreshed", true);
-			this.log.info(`Connected to ${this.config.host} `);
-		})
-		.catch((error) => {
-			this.setState("info.connection", false, true);
-			this.setState("info.status", "refresh token failed", true);
-			this.log.error(error);
-			error.response && this.log.error(JSON.stringify(error.response.data));
-		});
+			.then((response) => {
+				this.session = response.data;
+				this.setState("info.connection", true, true);
+				this.setState("info.status", "token refreshed", true);
+				this.log.info(`Connected to ${this.config.host} `);
+			})
+			.catch((error) => {
+				this.setState("info.connection", false, true);
+				this.setState("info.status", "refresh token failed", true);
+				this.log.error(error);
+				error.response && this.log.error(JSON.stringify(error.response.data));
+			});
 	}
 
 	//
@@ -184,31 +184,31 @@ class SmaEvCharger extends utils.Adapter {
 				"componentId": "IGULD:SELF"
 			}
 		];
-	
+
 		await this.requestClient({
 			url: smaUrl,
 			method: "POST",
 			headers: {
-				"Authorization": "Bearer " + this.session.access_token, 
+				"Authorization": "Bearer " + this.session.access_token,
 				"Accept": "*/*",
 				"Content-Type": "application/json"
 			},
 			data: JSON.stringify(body)
 		})
-		.then((response) => {
-			this.setState("info.connection", true, true);
-			this.setState("info.status", "OK", true);
-			
-			response.data.forEach(async(element) => {
-				await this.setChargerObjectValue(createFlag, element, element.values[0].value);
+			.then((response) => {
+				this.setState("info.connection", true, true);
+				this.setState("info.status", "OK", true);
+				
+				response.data.forEach(async(element) => {
+					await this.setChargerObjectValue(createFlag, element, element.values[0].value);
+				});
+			})
+			.catch((error) => {
+				this.setState("info.connection", false, true);
+				this.setState("info.status", "update failed", true);
+				this.log.error(error);
+				error.response && this.log.error(JSON.stringify(error.response.data));
 			});
-		})
-		.catch((error) => {
-			this.setState("info.connection", false, true);
-			this.setState("info.status", "update failed", true);
-			this.log.error(error);
-			error.response && this.log.error(JSON.stringify(error.response.data));
-		});
 	}
 
 	//
@@ -234,20 +234,20 @@ class SmaEvCharger extends utils.Adapter {
 			},
 			data: JSON.stringify(body)
 		})
-		.then((response) => {
-			this.setState("info.connection", true, true);
-			this.setState("info.status", "OK", true);
-			
-			response.data[0].values.forEach(async(element) => {
-				await this.setChargerObjectValue(createFlag, element, element.value);
+			.then((response) => {
+				this.setState("info.connection", true, true);
+				this.setState("info.status", "OK", true);
+				
+				response.data[0].values.forEach(async(element) => {
+					await this.setChargerObjectValue(createFlag, element, element.value);
+				});
+			})
+			.catch((error) => {
+				this.setState("info.connection", false, true);
+				this.setState("info.status", "update failed", true);
+				this.log.error(error);
+				error.response && this.log.error(JSON.stringify(error.response.data));
 			});
-		})
-		.catch((error) => {
-			this.setState("info.connection", false, true);
-			this.setState("info.status", "update failed", true);
-			this.log.error(error);
-			error.response && this.log.error(JSON.stringify(error.response.data));
-		});
 	}
 
 	//
