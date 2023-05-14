@@ -42,27 +42,8 @@ class SmaEvCharger extends utils.Adapter {
 		// Reset the connection indicator during startup
 		this.setState("info.connection", false, true);
 
-		// this.adapterConfig = "system.adapter." + this.name + "." + this.instance;
-		// const obj = await this.getForeignObjectAsync(this.adapterConfig);
-		// if (this.config.reset) {
-		// 	if (obj) {
-		// 		obj.native.session = {};
-		// 		await this.setForeignObjectAsync(this.adapterConfig, obj);
-		// 		this.log.info("Login Token resetted");
-		// 		this.terminate();
-		// 	}
-		// }
-
-		// if (obj && obj.native.session && obj.native.session.refresh_token) {
-		// 	this.session = obj.native.session;
-		// 	this.log.info("Session loaded");
-		// 	this.log.info("Refresh session");
-		// 	await this.refreshToken(true);
-		// }
-
 		// Subscribe to changes
 		this.subscribeStates("*");
-		// this.subscribeObjects("*");
 
 		// Initial login
 		if (!this.session.access_token) {
@@ -114,26 +95,27 @@ class SmaEvCharger extends utils.Adapter {
 			password: this.config.password
 		};
 
-		await this.requestClient({
-			url: smaUrl,
-			method: "POST",
-			headers: {
-				accept: "*/*"
-			},
-			data: qs.stringify(data)
-		})
-			.then((response) => {
-				this.session = response.data;
-				this.setState("info.connection", true, true);
-				this.setState("info.status", "logged in", true);
-				this.log.info(`Connected to ${this.config.host} `);
-			})
-			.catch((error) => {
-				this.setState("info.connection", false, true);
-				this.setState("info.status", "login failed", true);
-				this.log.error(error);
-				error.response && this.log.error(JSON.stringify(error.response.data));
+		try {
+			const response = await this.requestClient({
+				url: smaUrl,
+				method: "POST",
+				headers: {
+					accept: "*/*"
+				},
+				data: qs.stringify(data)
 			});
+
+			this.session = response.data;
+			this.setState("info.connection", true, true);
+			this.setState("info.status", "logged in", true);
+			this.log.info(`Connected to ${this.config.host} `);
+		}
+		catch(error) {
+			this.setState("info.connection", false, true);
+			this.setState("info.status", "login failed", true);
+			this.log.error("login request failed");
+			error.response && this.log.error(JSON.stringify(error.response.data));
+		}
 	}
 
 	//
@@ -149,26 +131,28 @@ class SmaEvCharger extends utils.Adapter {
 			grant_type: "refresh_token",
 			refresh_token: this.session.refresh_token
 		};
-		await this.requestClient({
-			url: smaUrl,
-			method: "POST",
-			headers: {
-				accept: "*/*"
-			},
-			data: qs.stringify(data)
-		})
-			.then((response) => {
-				this.session = response.data;
-				this.setState("info.connection", true, true);
-				this.setState("info.status", "token refreshed", true);
-				this.log.info(`Connected to ${this.config.host} `);
-			})
-			.catch((error) => {
-				this.setState("info.connection", false, true);
-				this.setState("info.status", "refresh token failed", true);
-				this.log.error(error);
-				error.response && this.log.error(JSON.stringify(error.response.data));
+
+		try {
+			const response = await this.requestClient({
+				url: smaUrl,
+				method: "POST",
+				headers: {
+					accept: "*/*"
+				},
+				data: qs.stringify(data)
 			});
+
+			this.session = response.data;
+			this.setState("info.connection", true, true);
+			this.setState("info.status", "token refreshed", true);
+			this.log.info(`Connected to ${this.config.host} `);
+		}
+		catch(error) {
+			this.setState("info.connection", false, true);
+			this.setState("info.status", "refresh token failed", true);
+			this.log.error("refresh token failed");
+			error.response && this.log.error(JSON.stringify(error.response.data));
+		}
 	}
 
 	//
@@ -186,30 +170,31 @@ class SmaEvCharger extends utils.Adapter {
 			}
 		];
 
-		await this.requestClient({
-			url: smaUrl,
-			method: "POST",
-			headers: {
-				"Authorization": "Bearer " + this.session.access_token,
-				"Accept": "*/*",
-				"Content-Type": "application/json"
-			},
-			data: JSON.stringify(body)
-		})
-			.then((response) => {
-				this.setState("info.connection", true, true);
-				this.setState("info.status", "OK", true);
-
-				response.data.forEach(async(element) => {
-					await this.setChargerObjectValue(createFlag, element, element.values[0].value);
-				});
-			})
-			.catch((error) => {
-				this.setState("info.connection", false, true);
-				this.setState("info.status", "update failed", true);
-				this.log.error(error);
-				error.response && this.log.error(JSON.stringify(error.response.data));
+		try {
+			const response = await this.requestClient({
+				url: smaUrl,
+				method: "POST",
+				headers: {
+					"Authorization": "Bearer " + this.session.access_token,
+					"Accept": "*/*",
+					"Content-Type": "application/json"
+				},
+				data: JSON.stringify(body)
 			});
+
+			this.setState("info.connection", true, true);
+			this.setState("info.status", "OK", true);
+
+			response.data.forEach(async(element) => {
+				await this.setChargerObjectValue(createFlag, element, element.values[0].value);
+			});
+		}
+		catch(error) {
+			this.setState("info.connection", false, true);
+			this.setState("info.status", "update failed", true);
+			this.log.error("update information failed");
+			error.response && this.log.error(JSON.stringify(error.response.data));
+		}
 	}
 
 	//
@@ -225,30 +210,31 @@ class SmaEvCharger extends utils.Adapter {
 			"queryItems": [ { "componentId": "IGULD:SELF" } ]
 		};
 
-		await this.requestClient({
-			url: smaUrl,
-			method: "POST",
-			headers: {
-				"Authorization": "Bearer " + this.session.access_token,
-				"Accept": "*/*",
-				"Content-Type": "application/json"
-			},
-			data: JSON.stringify(body)
-		})
-			.then((response) => {
-				this.setState("info.connection", true, true);
-				this.setState("info.status", "OK", true);
-
-				response.data[0].values.forEach(async(element) => {
-					await this.setChargerObjectValue(createFlag, element, element.value);
-				});
-			})
-			.catch((error) => {
-				this.setState("info.connection", false, true);
-				this.setState("info.status", "update failed", true);
-				this.log.error(error);
-				error.response && this.log.error(JSON.stringify(error.response.data));
+		try {
+			const response = await this.requestClient({
+				url: smaUrl,
+				method: "POST",
+				headers: {
+					"Authorization": "Bearer " + this.session.access_token,
+					"Accept": "*/*",
+					"Content-Type": "application/json"
+				},
+				data: JSON.stringify(body)
 			});
+
+			this.setState("info.connection", true, true);
+			this.setState("info.status", "OK", true);
+
+			response.data[0].values.forEach(async(element) => {
+				await this.setChargerObjectValue(createFlag, element, element.value);
+			});
+		}
+		catch(error) {
+			this.setState("info.connection", false, true);
+			this.setState("info.status", "update failed", true);
+			this.log.error("update parameters failed");
+			error.response && this.log.error(JSON.stringify(error.response.data));
+		}
 	}
 
 	//
@@ -325,27 +311,27 @@ class SmaEvCharger extends utils.Adapter {
 			]
 		};
 
-		await this.requestClient({
-			url: smaUrl,
-			method: "PUT",
-			headers: {
-				"Authorization": "Bearer " + this.session.access_token,
-				"Accept": "*/*",
-				"Content-Type": "application/json"
-			},
-			data: JSON.stringify(body)
-		})
-			.then((response) => {
-				this.setState("info.connection", true, true);
-				this.setState("info.status", "OK", true);
-				this.log.info(response.statusText);
-			})
-			.catch((error) => {
-				this.setState("info.connection", false, true);
-				this.setState("info.status", "set parameter failed", true);
-				this.log.error(error);
-				error.response && this.log.error(JSON.stringify(error.response.data));
+		try {
+			await this.requestClient({
+				url: smaUrl,
+				method: "PUT",
+				headers: {
+					"Authorization": "Bearer " + this.session.access_token,
+					"Accept": "*/*",
+					"Content-Type": "application/json"
+				},
+				data: JSON.stringify(body)
 			});
+
+			this.setState("info.connection", true, true);
+			this.setState("info.status", "OK", true);
+		}
+		catch(error) {
+			this.setState("info.connection", false, true);
+			this.setState("info.status", "set parameter failed", true);
+			this.log.error("set parameter failed");
+			error.response && this.log.error(JSON.stringify(error.response.data));
+		}
 	}
 
 	/**
