@@ -21,13 +21,10 @@ Status information and parameters are fetched periodically from charger. Interva
 
 
 ## Changelog
-<!--
-	Placeholder for the next version (at the beginning of the line):
-	### **WORK IN PROGRESS**
--->
 
-### **WORK IN PROGRESS**
-* (zapccu) initial release
+### 0.1.4
+* First functional release
+
 
 ## Credits
 
