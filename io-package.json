@@ -13,26 +13,23 @@
 				"it": "Versione iniziale",
 				"es": "Versión inicial",
 				"pl": "Pierwsze wydanie",
+				"uk": "initial release",
 				"zh-cn": "首次出版"
-			},
-			"0.1.0": {
-				"en": "First functional release",
-				"de": "Erstes funktionales release"
-			},
-			"0.1.1": {
-				"en": "Moved custom to native",
-				"de": "ChannelId in native speichern"
-			},
-			"0.1.3": {
-				"en": "Removed some log statements",
-				"de": "Einige Protokoll Befehle entfernt"
 			},
 			"0.1.4": {
 				"en": "Added info.status",
-				"de": "info.status hinzugefügt"
-			}		
+				"de": "Zusatz info.status",
+				"ru": "Добавлена информация.status",
+				"pt": "Adicionado info.status",
+				"nl": "Toegevoegd info",
+				"fr": "Ajout d'info.status",
+				"it": "Aggiunto info.status",
+				"es": "Información adicional.status",
+				"pl": "Added info.status (ang.)",
+				"uk": "Додана інформація.status",
+				"zh-cn": "增 编"
+			}
 		},
-		"title": "SMA EV Charger",
 		"titleLang": {
 			"en": "SMA EV Charger",
 			"de": "SMA EV Charger",
@@ -43,6 +40,7 @@
 			"it": "SMA EV Charger",
 			"es": "SMA EV Charger",
 			"pl": "SMA EV Charger",
+			"uk": "SMA EV Charger",
 			"zh-cn": "SMA EV Charger"
 		},
 		"desc": {
@@ -55,6 +53,7 @@
 			"it": "Adapter for SMA EV Charger wallbox",
 			"es": "Adapter for SMA EV Charger wallbox",
 			"pl": "Adapter for SMA EV Charger wallbox",
+			"uk": "Adapter for SMA EV Charger wallbox",
 			"zh-cn": "Adapter for SMA EV Charger wallbox"
 		},
 		"authors": ["zap <d.braner@gmx.net>"],
