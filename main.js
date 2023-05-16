@@ -52,7 +52,7 @@ class SmaEvCharger extends utils.Adapter {
             this.log.info("Initial login");
             loggedIn = await this.login();
          } else {
-            this.log.error("Please setup adapter parameters host, username and password before starting the adapter");
+            this.log.error("Please configure adapter parameters host, username and password before starting the adapter");
          }
 		}
       else {
