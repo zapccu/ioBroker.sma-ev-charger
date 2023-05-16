@@ -44,14 +44,22 @@ class SmaEvCharger extends utils.Adapter {
 
 		// Subscribe to changes
 		this.subscribeStates("*");
-
+      
 		// Initial login
+      let loggedIn = false;
 		if (!this.session.access_token) {
-			this.log.info("Initial login");
-			await this.login();
+         if(this.config.host && this.config.username && this.config.password) {
+            this.log.info("Initial login");
+            loggedIn = await this.login();
+         } else {
+            this.log.error("Please setup adapter parameters host, username and password before starting the adapter");
+         }
 		}
+      else {
+         loggedIn = true;
+      }
 
-		if (this.session.access_token) {
+		if (loggedIn && this.session.access_token) {
 			// Login successful, setup timer functions
 
 			const refreshInterval = this.session.expires_in ? this.session.expires_in : 3600;
@@ -79,7 +87,9 @@ class SmaEvCharger extends utils.Adapter {
 					await this.updateChargerParameters(false);
 				}, this.config.paramInterval * 1000);
 			}
-		}
+		} else {
+         this.log.error("Not logged in");
+      }
 	}
 
 	//
@@ -109,12 +119,14 @@ class SmaEvCharger extends utils.Adapter {
 			this.setState("info.connection", true, true);
 			this.setState("info.status", "logged in", true);
 			this.log.info(`Connected to ${this.config.host} `);
+         return true;
 		}
 		catch(error) {
 			this.setState("info.connection", false, true);
 			this.setState("info.status", "login failed", true);
 			this.log.error("login request failed");
 			error.response && this.log.error(JSON.stringify(error.response.data));
+         return false;
 		}
 	}
 
