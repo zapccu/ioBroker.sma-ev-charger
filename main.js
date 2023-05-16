@@ -42,7 +42,7 @@ class SmaEvCharger extends utils.Adapter {
 
 		// Subscribe to changes
 		this.subscribeStates("*");
-      
+
 		// Initial login
 		let loggedIn = false;
 		if (!this.session.access_token) {
