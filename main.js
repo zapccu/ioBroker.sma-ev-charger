@@ -6,8 +6,6 @@ process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
  * Created with @iobroker/create-adapter v2.3.0
  */
 
-// The adapter-core module gives you access to the core ioBroker functions
-// you need to create an adapter
 const utils = require("@iobroker/adapter-core");
 
 const axios = require("axios");
@@ -46,23 +44,22 @@ class SmaEvCharger extends utils.Adapter {
 		this.subscribeStates("*");
       
 		// Initial login
-      let loggedIn = false;
+		let loggedIn = false;
 		if (!this.session.access_token) {
-         if(this.config.host && this.config.username && this.config.password) {
-            this.log.info("Initial login");
-            loggedIn = await this.login();
-         } else {
-            this.log.error("Please configure adapter parameters host, username and password before starting the adapter");
-         }
+			if(this.config.host && this.config.username && this.config.password) {
+				this.log.info("Initial login");
+				loggedIn = await this.login();
+			} else {
+				this.log.error("Please configure adapter parameters host, username and password before starting the adapter");
+			}
+		} else {
+			loggedIn = true;
 		}
-      else {
-         loggedIn = true;
-      }
 
 		if (loggedIn && this.session.access_token) {
 			// Login successful, setup timer functions
 
-			const refreshInterval = this.session.expires_in ? this.session.expires_in : 3600;
+			const refreshInterval = this.session.expires_in ? this.session.expires_in-60 : 3600;
 			this.log.info("Token refresh interval = " + refreshInterval + " seconds");
 
 			// Timer for refreshing the access token
@@ -88,8 +85,8 @@ class SmaEvCharger extends utils.Adapter {
 				}, this.config.paramInterval * 1000);
 			}
 		} else {
-         this.log.error("Not logged in");
-      }
+			this.log.error("Not logged in");
+		}
 	}
 
 	//
@@ -119,14 +116,14 @@ class SmaEvCharger extends utils.Adapter {
 			this.setState("info.connection", true, true);
 			this.setState("info.status", "logged in", true);
 			this.log.info(`Connected to ${this.config.host} `);
-         return true;
+			return true;
 		}
 		catch(error) {
 			this.setState("info.connection", false, true);
 			this.setState("info.status", "login failed", true);
 			this.log.error("login request failed");
 			error.response && this.log.error(JSON.stringify(error.response.data));
-         return false;
+			return false;
 		}
 	}
 
