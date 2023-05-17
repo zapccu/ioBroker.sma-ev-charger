@@ -191,6 +191,8 @@ class SmaEvCharger extends utils.Adapter {
 				data: JSON.stringify(body)
 			});
 
+			this.log.debug("Charger info: " + JSON.stringify(response.data));
+
 			this.setState("info.connection", true, true);
 			this.setState("info.status", "OK", true);
 
@@ -230,6 +232,8 @@ class SmaEvCharger extends utils.Adapter {
 				},
 				data: JSON.stringify(body)
 			});
+
+			this.log.debug("Charger parameters: " + JSON.stringify(response.data));
 
 			this.setState("info.connection", true, true);
 			this.setState("info.status", "OK", true);
