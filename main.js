@@ -305,7 +305,7 @@ class SmaEvCharger extends utils.Adapter {
 		}
 
 		// Set object state
-		value && this.setState(objPath, isNaN(value) ? value : Number(value), true);
+		this.setState(objPath, isNaN(value) ? Number(value) : value, true);
 	}
 
 	//
