@@ -18,7 +18,7 @@
     "url": "https://github.com/zapccu/ioBroker.sma-ev-charger.git"
   },
   "engines": {
-    "node": ">= 14"
+    "node": "^12.22.0 || ^14.17.0 || >=16.0.0"
   },
   "dependencies": {
     "@iobroker/adapter-core": "^2.6.8"
