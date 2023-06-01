@@ -17,21 +17,21 @@
 			"label": "Password",
 			"newLine": true
 		},
-      "infoInterval": {
-         "type": "number",
-         "min": 0,
-         "max": 3600,
-         "default": 30,
-         "label": "Info update interval, 0 = no update",
-         "newLine": true
-      },
-      "paramInterval": {
-         "type": "number",
-         "min": 0,
-         "max": 3600,
-         "default": 119,
-         "label": "Parameter update interval, 0 = no update",
-         "newLine": true
-      }
+		"infoInterval": {
+			"type": "number",
+			"min": 0,
+			"max": 3600,
+			"default": 30,
+			"label": "Info update interval, 0 = no update",
+			"newLine": true
+		},
+		"paramInterval": {
+			"type": "number",
+			"min": 0,
+			"max": 3600,
+			"default": 119,
+			"label": "Parameter update interval, 0 = no update",
+			"newLine": true
+		}
 	}
 }
