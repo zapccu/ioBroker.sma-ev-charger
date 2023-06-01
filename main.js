@@ -50,7 +50,7 @@ class SmaEvCharger extends utils.Adapter {
 				this.log.info("Initial login");
 				loggedIn = await this.login();
 			} else {
-				this.log.error("Please configure adapter parameters host, username and password before starting the adapter");
+				this.log.info("Please configure adapter parameters host, username and password before starting the adapter");
 			}
 		} else {
 			loggedIn = true;
@@ -85,7 +85,7 @@ class SmaEvCharger extends utils.Adapter {
 				}, this.config.paramInterval * 1000);
 			}
 		} else {
-			this.log.error("Not logged in");
+			this.log.info("Not logged in");
 		}
 	}
 
