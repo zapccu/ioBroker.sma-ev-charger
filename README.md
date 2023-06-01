@@ -18,6 +18,13 @@ Adapter for SMA EV Charger wallbox
 
 Status information and parameters are fetched periodically from charger. Intervals for status information and parameters can be configured individually. Set interval to 0 to deactivate automatic updates.
 
+## Interesting datapoints
+
+measurement.MeteringGridMsTotWInChaSta - Current charging power
+measurement.MeteringGridMsTotWhInChaSta - Total charged
+
+parameter.ChrgActChaMod - Set charging mode
+parameter.ChrgAMinCha - Minimum charging current (smalles value is 6A)
 
 
 ## Changelog
