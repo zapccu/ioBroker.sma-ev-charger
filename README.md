@@ -28,9 +28,12 @@ parameter.ChrgAMinCha - Minimum charging current (smalles value is 6A)
 
 
 ## Changelog
-
-### 0.1.4
-* First functional release
+<!--
+	Placeholder for the next version (at the beginning of the line):
+	### __WORK IN PROGRESS__
+-->
+### 0.1.4 (2023-05-18)
+* (zapccu) First functional release
 
 
 ## Credits
