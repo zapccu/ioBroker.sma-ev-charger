@@ -1,246 +1,265 @@
 {
-	"common": {
-		"name": "sma-ev-charger",
-		"version": "0.1.4",
-		"news": {
-			"0.0.1": {
-				"en": "initial release",
-				"de": "Erstveröffentlichung",
-				"ru": "Начальная версия",
-				"pt": "lançamento inicial",
-				"nl": "Eerste uitgave",
-				"fr": "Première version",
-				"it": "Versione iniziale",
-				"es": "Versión inicial",
-				"pl": "Pierwsze wydanie",
-				"uk": "initial release",
-				"zh-cn": "首次出版"
-			},
-			"0.1.4": {
-				"en": "Added info.status",
-				"de": "Zusatz info.status",
-				"ru": "Добавлена информация.status",
-				"pt": "Adicionado info.status",
-				"nl": "Toegevoegd info",
-				"fr": "Ajout d'info.status",
-				"it": "Aggiunto info.status",
-				"es": "Información adicional.status",
-				"pl": "Added info.status (ang.)",
-				"uk": "Додана інформація.status",
-				"zh-cn": "增 编"
-			}
-		},
-		"titleLang": {
-			"en": "SMA EV Charger",
-			"de": "SMA EV Charger",
-			"ru": "SMA EV Charger",
-			"pt": "SMA EV Charger",
-			"nl": "SMA EV Charger",
-			"fr": "SMA EV Charger",
-			"it": "SMA EV Charger",
-			"es": "SMA EV Charger",
-			"pl": "SMA EV Charger",
-			"uk": "SMA EV Charger",
-			"zh-cn": "SMA EV Charger"
-		},
-		"desc": {
-			"en": "Adapter for SMA EV Charger wallbox",
-			"de": "Adapter for SMA EV Charger wallbox",
-			"ru": "Adapter for SMA EV Charger wallbox",
-			"pt": "Adapter for SMA EV Charger wallbox",
-			"nl": "Adapter for SMA EV Charger wallbox",
-			"fr": "Adapter for SMA EV Charger wallbox",
-			"it": "Adapter for SMA EV Charger wallbox",
-			"es": "Adapter for SMA EV Charger wallbox",
-			"pl": "Adapter for SMA EV Charger wallbox",
-			"uk": "Adapter for SMA EV Charger wallbox",
-			"zh-cn": "Adapter for SMA EV Charger wallbox"
-		},
-		"authors": ["zap <d.braner@gmx.net>"],
-		"keywords": ["wallbox", "sma", "charger"],
-		"license": "MIT",
-		"platform": "Javascript/Node.js",
-		"main": "main.js",
-		"icon": "sma-ev-charger.png",
-		"enabled": true,
-		"extIcon": "https://raw.githubusercontent.com/zapccu/ioBroker.sma-ev-charger/main/admin/sma-ev-charger.png",
-		"readme": "https://github.com/zapccu/ioBroker.sma-ev-charger/blob/main/README.md",
-		"loglevel": "info",
-		"mode": "daemon",
-		"type": "energy",
-		"compact": true,
-		"connectionType": "local",
-		"dataSource": "poll",
-		"adminUI": {
-			"config": "json"
-		},
-		"supportCustoms": false,
-		"dependencies": [
-			{
-				"js-controller": ">=3.3.22"
-			}
-		],
-		"globalDependencies": [
-			{
-				"admin": ">=5.1.13"
-			}
-		]
-	},
-	"native": {
-		"host": "",
-		"username": "admin",
-		"password": "",
-		"infoInterval": 30,
-		"paramInterval": 119
-	},
-	"objects": [],
-	"instanceObjects": [
-		{
-			"_id": "info",
-			"type": "channel",
-			"common": {
-				"name": "Information"
-			},
-			"native": {}
-		},
-		{
-			"_id": "info.connection",
-			"type": "state",
-			"common": {
-				"role": "indicator.connected",
-				"name": "Device or service connected",
-				"type": "boolean",
-				"read": true,
-				"write": false,
-				"def": false
-			},
-			"native": {}
-		},
-		{
-			"_id": "info.status",
-			"type": "state",
-			"common": {
-				"role": "indicator",
-				"name": "Action status",
-				"type": "string",
-				"read": true,
-				"write": false,
-				"def": "OK"
-			},
-			"native": {}
-		},
-		{
-			"_id": "measurement",
-			"type": "channel",
-			"common": {
-				"name": "Measurement"
-			},
-			"native": {}
-		},
-		{
-			"_id": "measurement.MeteringGridMsTotWInChaSta",
-			"type": "state",
-			"common": {
-				"role": "value",
-				"name": "Charging power",
-				"type": "number",
-				"unit": "W",
-				"read": true,
-				"write": false,
-				"def": 0
-			},
-			"native": {}
-		},
-		{
-			"_id": "measurement.MeteringGridMsTotWhInChaSta",
-			"type": "state",
-			"common": {
-				"role": "value",
-				"name": "Charging counter",
-				"type": "number",
-				"unit": "Wh",
-				"read": true,
-				"write": false,
-				"def": 0
-			},
-			"native": {}
-		},
-		{
-			"_id": "measurement.MeteringPCCMsPlntCsmpW",
-			"type": "state",
-			"common": {
-				"role": "value",
-				"name": "Power from grid",
-				"type": "number",
-				"unit": "W",
-				"read": true,
-				"write": false,
-				"def": 0
-			},
-			"native": {}
-		},
-		{
-			"_id": "measurement.MeteringPCCMsPlntW",
-			"type": "state",
-			"common": {
-				"role": "value",
-				"name": "Power to grid",
-				"type": "number",
-				"unit": "W",
-				"read": true,
-				"write": false,
-				"def": 0
-			},
-			"native": {}
-		},
-		{
-			"_id": "parameter",
-			"type": "channel",
-			"common": {
-				"name": "Parameter"
-			},
-			"native": {}
-		},
-		{
-			"_id": "parameter.ChrgActChaMod",
-			"type": "state",
-			"common": {
-				"role": "value",
-				"name": "Charging mode",
-				"type": "number",
-				"read": true,
-				"write": true,
-				"states": {
-					"4718": "Fast",
-					"4719": "Optimized",
-					"4720": "Set point",
-					"4721": "Stop"
-				}
-			},
-			"native": {}
-		},
-		{
-			"_id": "parameter.ChrgAMinCha",
-			"type": "state",
-			"common": {
-				"role": "value",
-				"name": "Minimum charge current",
-				"type": "number",
-				"unit": "A",
-				"read": true,
-				"write": true
-			},
-			"native": {
-				"channelId": "undef"
-			}
-		},
-		{
-			"_id": "setpoint",
-			"type": "channel",
-			"common": {
-				"name": "SetPoint"
-			},
-			"native": {}
-		}
-	]
+  "common": {
+    "name": "sma-ev-charger",
+    "version": "0.1.5",
+    "news": {
+      "0.1.5": {
+        "en": "Fixed GIT automations",
+        "de": "Feste GIT-Automatisierungen",
+        "ru": "Фиксированная GIT автоматизация",
+        "pt": "Automaçãos GIT fixas",
+        "nl": "Vertaling:",
+        "fr": "Automatisations GIT fixes",
+        "it": "Automazioni GIT fissi",
+        "es": "Automatizaciones fijas de GIT",
+        "pl": "Automatyki GIT",
+        "uk": "Виправлені автомати GIT",
+        "zh-cn": "固定的全球IT自动化"
+      },
+      "0.0.1": {
+        "en": "initial release",
+        "de": "Erstveröffentlichung",
+        "ru": "Начальная версия",
+        "pt": "lançamento inicial",
+        "nl": "Eerste uitgave",
+        "fr": "Première version",
+        "it": "Versione iniziale",
+        "es": "Versión inicial",
+        "pl": "Pierwsze wydanie",
+        "uk": "initial release",
+        "zh-cn": "首次出版"
+      },
+      "0.1.4": {
+        "en": "Added info.status",
+        "de": "Zusatz info.status",
+        "ru": "Добавлена информация.status",
+        "pt": "Adicionado info.status",
+        "nl": "Toegevoegd info",
+        "fr": "Ajout d'info.status",
+        "it": "Aggiunto info.status",
+        "es": "Información adicional.status",
+        "pl": "Added info.status (ang.)",
+        "uk": "Додана інформація.status",
+        "zh-cn": "增 编"
+      }
+    },
+    "titleLang": {
+      "en": "SMA EV Charger",
+      "de": "SMA EV Charger",
+      "ru": "SMA EV Charger",
+      "pt": "SMA EV Charger",
+      "nl": "SMA EV Charger",
+      "fr": "SMA EV Charger",
+      "it": "SMA EV Charger",
+      "es": "SMA EV Charger",
+      "pl": "SMA EV Charger",
+      "uk": "SMA EV Charger",
+      "zh-cn": "SMA EV Charger"
+    },
+    "desc": {
+      "en": "Adapter for SMA EV Charger wallbox",
+      "de": "Adapter for SMA EV Charger wallbox",
+      "ru": "Adapter for SMA EV Charger wallbox",
+      "pt": "Adapter for SMA EV Charger wallbox",
+      "nl": "Adapter for SMA EV Charger wallbox",
+      "fr": "Adapter for SMA EV Charger wallbox",
+      "it": "Adapter for SMA EV Charger wallbox",
+      "es": "Adapter for SMA EV Charger wallbox",
+      "pl": "Adapter for SMA EV Charger wallbox",
+      "uk": "Adapter for SMA EV Charger wallbox",
+      "zh-cn": "Adapter for SMA EV Charger wallbox"
+    },
+    "authors": [
+      "zap <d.braner@gmx.net>"
+    ],
+    "keywords": [
+      "wallbox",
+      "sma",
+      "charger"
+    ],
+    "license": "MIT",
+    "platform": "Javascript/Node.js",
+    "main": "main.js",
+    "icon": "sma-ev-charger.png",
+    "enabled": true,
+    "extIcon": "https://raw.githubusercontent.com/zapccu/ioBroker.sma-ev-charger/main/admin/sma-ev-charger.png",
+    "readme": "https://github.com/zapccu/ioBroker.sma-ev-charger/blob/main/README.md",
+    "loglevel": "info",
+    "mode": "daemon",
+    "type": "energy",
+    "compact": true,
+    "connectionType": "local",
+    "dataSource": "poll",
+    "adminUI": {
+      "config": "json"
+    },
+    "supportCustoms": false,
+    "dependencies": [
+      {
+        "js-controller": ">=3.3.22"
+      }
+    ],
+    "globalDependencies": [
+      {
+        "admin": ">=5.1.13"
+      }
+    ]
+  },
+  "native": {
+    "host": "",
+    "username": "admin",
+    "password": "",
+    "infoInterval": 30,
+    "paramInterval": 119
+  },
+  "objects": [],
+  "instanceObjects": [
+    {
+      "_id": "info",
+      "type": "channel",
+      "common": {
+        "name": "Information"
+      },
+      "native": {}
+    },
+    {
+      "_id": "info.connection",
+      "type": "state",
+      "common": {
+        "role": "indicator.connected",
+        "name": "Device or service connected",
+        "type": "boolean",
+        "read": true,
+        "write": false,
+        "def": false
+      },
+      "native": {}
+    },
+    {
+      "_id": "info.status",
+      "type": "state",
+      "common": {
+        "role": "indicator",
+        "name": "Action status",
+        "type": "string",
+        "read": true,
+        "write": false,
+        "def": "OK"
+      },
+      "native": {}
+    },
+    {
+      "_id": "measurement",
+      "type": "channel",
+      "common": {
+        "name": "Measurement"
+      },
+      "native": {}
+    },
+    {
+      "_id": "measurement.MeteringGridMsTotWInChaSta",
+      "type": "state",
+      "common": {
+        "role": "value",
+        "name": "Charging power",
+        "type": "number",
+        "unit": "W",
+        "read": true,
+        "write": false,
+        "def": 0
+      },
+      "native": {}
+    },
+    {
+      "_id": "measurement.MeteringGridMsTotWhInChaSta",
+      "type": "state",
+      "common": {
+        "role": "value",
+        "name": "Charging counter",
+        "type": "number",
+        "unit": "Wh",
+        "read": true,
+        "write": false,
+        "def": 0
+      },
+      "native": {}
+    },
+    {
+      "_id": "measurement.MeteringPCCMsPlntCsmpW",
+      "type": "state",
+      "common": {
+        "role": "value",
+        "name": "Power from grid",
+        "type": "number",
+        "unit": "W",
+        "read": true,
+        "write": false,
+        "def": 0
+      },
+      "native": {}
+    },
+    {
+      "_id": "measurement.MeteringPCCMsPlntW",
+      "type": "state",
+      "common": {
+        "role": "value",
+        "name": "Power to grid",
+        "type": "number",
+        "unit": "W",
+        "read": true,
+        "write": false,
+        "def": 0
+      },
+      "native": {}
+    },
+    {
+      "_id": "parameter",
+      "type": "channel",
+      "common": {
+        "name": "Parameter"
+      },
+      "native": {}
+    },
+    {
+      "_id": "parameter.ChrgActChaMod",
+      "type": "state",
+      "common": {
+        "role": "value",
+        "name": "Charging mode",
+        "type": "number",
+        "read": true,
+        "write": true,
+        "states": {
+          "4718": "Fast",
+          "4719": "Optimized",
+          "4720": "Set point",
+          "4721": "Stop"
+        }
+      },
+      "native": {}
+    },
+    {
+      "_id": "parameter.ChrgAMinCha",
+      "type": "state",
+      "common": {
+        "role": "value",
+        "name": "Minimum charge current",
+        "type": "number",
+        "unit": "A",
+        "read": true,
+        "write": true
+      },
+      "native": {
+        "channelId": "undef"
+      }
+    },
+    {
+      "_id": "setpoint",
+      "type": "channel",
+      "common": {
+        "name": "SetPoint"
+      },
+      "native": {}
+    }
+  ]
 }
