@@ -122,7 +122,7 @@ class SmaEvCharger extends utils.Adapter {
 			this.setState("info.connection", false, true);
 			this.setState("info.status", "login failed", true);
 			this.log.error("login request failed");
-			error.response && this.log.error(JSON.stringify(error.response.data));
+			this.log.debug(JSON.stringify(error.toJSON()));
 			return false;
 		}
 	}
@@ -160,14 +160,19 @@ class SmaEvCharger extends utils.Adapter {
 			this.setState("info.connection", false, true);
 			this.setState("info.status", "refresh token failed", true);
 			this.log.error("refresh token failed");
-			error.response && this.log.error(JSON.stringify(error.response.data));
+			this.log.debug(JSON.stringify(error.toJSON()));
+
+			if(error.response && (error.response.status == 500 || error.response.status == 401)) {
+				this.log.error("Authentication error. Trying to reauthenticate ...");
+				await this.login();
+			}
 		}
 	}
 
 	//
 	// Refresh the charger information
 	//
-	async updateChargerInformation(createFlag) {
+	async updateChargerInformation(createFlag, retry = 0) {
 
 		createFlag && this.log.info("Initial update of charger information");
 
@@ -191,7 +196,7 @@ class SmaEvCharger extends utils.Adapter {
 				data: JSON.stringify(body)
 			});
 
-			this.log.debug("Charger info: " + JSON.stringify(response.data));
+			this.log.debug("Charger response: " + JSON.stringify(response.data));
 
 			this.setState("info.connection", true, true);
 			this.setState("info.status", "OK", true);
@@ -204,14 +209,19 @@ class SmaEvCharger extends utils.Adapter {
 			this.setState("info.connection", false, true);
 			this.setState("info.status", "update failed", true);
 			this.log.error("update information failed");
-			error.response && this.log.error(JSON.stringify(error.response.data));
+			this.log.debug(JSON.stringify(error.toJSON()));
+
+			if(error.response && (error.response.status == 500 || error.response.status == 401) && retry == 0) {
+				this.log.error("Authentication error. Trying to reauthenticate and repeat information update ...");
+				await this.login() && await this.updateChargerInformation(createFlag, retry+1);
+			}
 		}
 	}
 
 	//
 	// Refresh the charger parameters
 	//
-	async updateChargerParameters(createFlag) {
+	async updateChargerParameters(createFlag, retry = 0) {
 
 		createFlag && this.log.info("Initial update of charger parameters");
 
@@ -246,7 +256,12 @@ class SmaEvCharger extends utils.Adapter {
 			this.setState("info.connection", false, true);
 			this.setState("info.status", "update failed", true);
 			this.log.error("update parameters failed");
-			error.response && this.log.error(JSON.stringify(error.response.data));
+			this.log.debug(JSON.stringify(error.toJSON()));
+
+			if(error.response && (error.response.status == 500 || error.response.status == 401) && retry == 0) {
+				this.log.error("Authentication error. Trying to reauthenticate and repeat parameter update ...");
+				await this.login() && await this.updateChargerParameters(createFlag, retry+1);
+			}
 		}
 	}
 
@@ -324,6 +339,8 @@ class SmaEvCharger extends utils.Adapter {
 			]
 		};
 
+		let retry = 0;
+
 		try {
 			await this.requestClient({
 				url: smaUrl,
@@ -343,7 +360,13 @@ class SmaEvCharger extends utils.Adapter {
 			this.setState("info.connection", false, true);
 			this.setState("info.status", "set parameter failed", true);
 			this.log.error("set parameter failed");
-			error.response && this.log.error(JSON.stringify(error.response.data));
+			this.log.debug(JSON.stringify(error.toJSON()));
+
+			if(error.response && (error.response.status == 500 || error.response.status == 401) && retry == 0) {
+				retry = 1;
+				this.log.error("Authentication error. Trying to reauthenticate and repeat the command ...");
+				await this.login() && await this.setChargerParameter(smaChannelId, newValue);
+			}
 		}
 	}
 
