@@ -25,13 +25,11 @@ measurement.MeteringGridMsTotWhInChaSta - Total charged
 
 parameter.ChrgActChaMod - Set charging mode
 parameter.ChrgAMinCha - Minimum charging current (smalles value is 6A)
-
-### **WORK IN PROGRESS**
+### 0.1.6 (2023-07-13)
 
 * (zapccu) Auto reconnect after SMA Charger outage
 * (zapccu) Added translations
 
-## Changelog
 ### 0.1.5 (2023-06-02)
 
 * (zapccu) Fixed GIT automations
