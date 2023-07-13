@@ -1,8 +1,8 @@
 {
-	"sma-ev-charger adapter settings": "Adapter settings for sma-ev-charger",
-	"host": "Charger hostname or IP",
-	"username": "Username",
-	"password": "Password",
-   "infoInterval": "Info update interval",
-   "paramInterval": "Parameter update interval"
+    "sma-ev-charger adapter settings": "Adapter settings for sma-ev-charger",
+    "host": "Charger hostname or IP",
+    "username": "Username",
+    "password": "Password",
+    "infoInterval": "Info update interval",
+    "paramInterval": "Parameter update interval"
 }

@@ -1,6 +1,8 @@
 {
-	"sma-ev-charger adapter settings": "sma-ev-charger的适配器设置",
-	"host": "Charger hostname or IP",
-	"username": "User",
-	"password": "Password"
+    "sma-ev-charger adapter settings": "sma-ev-charger的适配器设置",
+    "host": "Charger hostname or IP",
+    "username": "User",
+    "password": "Password",
+    "infoInterval": "信息更新间隔",
+    "paramInterval": "参数更新间隔"
 }
