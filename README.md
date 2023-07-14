@@ -20,11 +20,18 @@ Status information and parameters are fetched periodically from charger. Interva
 
 ## Interesting datapoints
 
-measurement.MeteringGridMsTotWInChaSta - Current charging power
-measurement.MeteringGridMsTotWhInChaSta - Total charged
+* measurement.MeteringGridMsTotWInChaSta - Current charging power
+* measurement.MeteringGridMsTotWhInChaSta - Total charged
 
-parameter.ChrgActChaMod - Set charging mode
-parameter.ChrgAMinCha - Minimum charging current (smalles value is 6A)
+* parameter.ChrgActChaMod - Set charging mode
+* parameter.ChrgAMinCha - Minimum charging current (smallest value is 6A)
+
+## Diskussion, Test und Fragen
+
+![Diskussion und Fragen](https://forum.iobroker.net/topic/65518/test-adapter-sma-ev-charger-v0-1-x)
+
+## Changelog
+
 ### 0.1.6 (2023-07-13)
 
 * (zapccu) Auto reconnect after SMA Charger outage
@@ -39,7 +46,7 @@ parameter.ChrgAMinCha - Minimum charging current (smalles value is 6A)
 
 ## Credits
 
-Many thanks to SMA for providing product images from SMA EV Charger.
+Many thanks to SMA for providing product images of SMA EV Charger.
 
 
 ## License
