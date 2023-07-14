@@ -28,7 +28,7 @@ Status information and parameters are fetched periodically from charger. Interva
 
 ## Diskussion, Test und Fragen
 
-![Diskussion und Fragen](https://forum.iobroker.net/topic/65518/test-adapter-sma-ev-charger-v0-1-x)
+https://forum.iobroker.net/topic/65518/test-adapter-sma-ev-charger-v0-1-x
 
 ## Changelog
 
