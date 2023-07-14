@@ -326,7 +326,7 @@ class SmaEvCharger extends utils.Adapter {
 	//
 	// Set charger parameter
 	//
-	async setChargerParameter(smaChannelId, newValue) {
+	async setChargerParameter(smaChannelId, newValue, retry = 0) {
 
 		const smaUrl = "https://" + this.config.host + "/api/v1/parameters/IGULD:SELF";
 
@@ -338,8 +338,6 @@ class SmaEvCharger extends utils.Adapter {
 				}
 			]
 		};
-
-		let retry = 0;
 
 		try {
 			await this.requestClient({
@@ -363,9 +361,8 @@ class SmaEvCharger extends utils.Adapter {
 			this.log.debug(JSON.stringify(error.toJSON()));
 
 			if(error.response && (error.response.status == 500 || error.response.status == 401) && retry == 0) {
-				retry = 1;
 				this.log.error("Authentication error. Trying to reauthenticate and repeat the command ...");
-				await this.login() && await this.setChargerParameter(smaChannelId, newValue);
+				await this.login() && await this.setChargerParameter(smaChannelId, newValue, retry+1);
 			}
 		}
 	}
