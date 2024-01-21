@@ -14,6 +14,10 @@
 
 Adapter for SMA EV Charger wallbox
 
+## Important Information ##
+
+Meanwhile I moved to Home Assistant. I won't continue development of this adapter. Feel free to fork it.
+
 ## Configuration
 
 Status information and parameters are fetched periodically from charger. Intervals for status information and parameters can be configured individually. Set interval to 0 to deactivate automatic updates.
