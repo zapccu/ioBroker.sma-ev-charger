@@ -14,9 +14,10 @@
 
 Adapter for SMA EV Charger wallbox
 
-## Important Information ##
+## <font color="red">Important Information</font> ##
 
 Meanwhile I moved to Home Assistant. I won't continue development of this adapter. Feel free to fork it.
+I tried to merge all the pending pull requests, but because of the complex dependencies and the complex build process of an ioBroker adapter it takes me too much time. On other smarthome platforms this is so much easier. On ioBroker it's a horror.
 
 ## Configuration
 
